@@ -1,0 +1,23 @@
+{
+  "lastId": 1,
+  "registrations": [
+    {
+      "id": "7309592d-c806-4cba-9280-f11566f626a1",
+      "profile": "estudiante",
+      "status": "draft",
+      "stepKey": "datos",
+      "payload": {
+        "codigo": "220252",
+        "nombre_completo": "Test",
+        "facultad": "FI",
+        "carrera_profesional": "Sistemas",
+        "telefono": "987654321",
+        "direccion": "Av. T",
+        "email": "test@example.com"
+      },
+      "createdAt": "2026-07-22T18:22:42.012Z",
+      "updatedAt": "2026-07-22T18:22:42.012Z",
+      "completedAt": null
+    }
+  ]
+}
