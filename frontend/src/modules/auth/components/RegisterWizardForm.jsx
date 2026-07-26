@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRegisterForm } from '../hooks/useRegisterForm';
+import { saveCurrentUser } from '../../catalog/utils/catalogHelpers';
 
 const fieldClassName =
 	'mt-1 w-full rounded-lg border border-[#e7d8d0] bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#be1e2d] focus:ring-4 focus:ring-[#be1e2d]/10';
@@ -17,9 +19,9 @@ export const RegisterWizardForm = ({
 	steps,
 	cancelPath = '/',
 	defaultValues = {},
-	finishMessage = 'Registro completado.',
-	successReturnLabel = 'Volver al inicio',
+	redirectPath = '/dashboard',
 }) => {
+	const navigate = useNavigate();
 	const {
 		values,
 		errors,
@@ -33,6 +35,13 @@ export const RegisterWizardForm = ({
 		reset,
 	} = useRegisterForm({ profile, steps, defaultValues });
 
+	useEffect(() => {
+		if (!submitted) return;
+
+		saveCurrentUser({ profile, ...values, registeredAt: new Date().toISOString() });
+		navigate(redirectPath, { replace: true });
+	}, [submitted, profile, values, navigate, redirectPath]);
+
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		await next();
@@ -40,27 +49,9 @@ export const RegisterWizardForm = ({
 
 	if (submitted) {
 		return (
-			<section className="mx-auto max-w-4xl rounded-[28px] border border-[#ecd9d3] bg-white/95 p-6 shadow-[0_18px_60px_rgba(127,0,0,0.08)] backdrop-blur sm:p-8">
-				<div className="mx-auto max-w-2xl text-center">
-					<div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#ebf7ec] text-2xl text-[#2e7d32]">
-						✓
-					</div>
-					<h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{finishMessage}</h2>
-					<p className="mt-3 text-sm leading-6 text-slate-600">
-						Tu información quedó lista para continuar con la siguiente interfaz del proceso.
-					</p>
-
-					<div className="mt-8 grid gap-3 sm:grid-cols-2">
-
-						<button
-							type="button"
-							onClick={() => navigateTo(cancelPath)}
-							className="rounded-lg bg-[#be1e2d] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#a71825]"
-						>
-							{successReturnLabel}
-						</button>
-					</div>
-				</div>
+			<section className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-[#ecd9d3] bg-white/95 p-10 text-center shadow-[0_18px_60px_rgba(127,0,0,0.08)] backdrop-blur">
+				<div className="h-10 w-10 animate-spin rounded-full border-4 border-[#ecd9d3] border-t-[#be1e2d]" />
+				<p className="mt-4 text-sm font-medium text-slate-600">Redirigiendo a tu dashboard…</p>
 			</section>
 		);
 	}
