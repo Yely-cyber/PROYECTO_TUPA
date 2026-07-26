@@ -111,6 +111,42 @@ export const getSolicitudes = () => {
 
 export const getSolicitudById = (id) => getSolicitudes().find((item) => item.id === id) || null;
 
+const HISTORIAL_TRAMITES_KEY = 'tupa_historial_tramites';
+
+export const getTramitesConfirmados = () => {
+	try {
+		const raw = window.localStorage.getItem(HISTORIAL_TRAMITES_KEY);
+		return raw ? JSON.parse(raw) : [];
+	} catch (error) {
+		console.error('No se pudo leer el historial local de trámites', error);
+		return [];
+	}
+};
+
+export const saveTramiteConfirmado = (solicitud) => {
+	try {
+		const historial = getTramitesConfirmados();
+		const existente = historial.find((item) => item.id === solicitud.id);
+		if (existente) return existente;
+
+		const registro = {
+			id: solicitud.id,
+			tramiteId: solicitud.tramiteId,
+			tipo: solicitud.tramiteNombre,
+			peticion: solicitud.peticion,
+			fecha: new Date().toISOString(),
+			estado: 'iniciado',
+			codigoPago: solicitud.codigoPago,
+		};
+
+		window.localStorage.setItem(HISTORIAL_TRAMITES_KEY, JSON.stringify([...historial, registro]));
+		return registro;
+	} catch (error) {
+		console.error('No se pudo guardar el trámite confirmado', error);
+		return null;
+	}
+};
+
 export const filterTramites = (tramites, { categoria, search } = {}) => {
 	const term = search?.trim().toLowerCase();
 

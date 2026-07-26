@@ -62,7 +62,7 @@ export const NewTramitePage = () => {
 			});
 
 			if (solicitud) {
-				navigate(`/confirmacion/${solicitud.id}`);
+				navigate(`/tramite/confirmacion/${solicitud.id}`);
 			}
 		});
 	};

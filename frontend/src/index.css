@@ -55,6 +55,51 @@ body {
   margin: 0;
 }
 
+.tracking-page-content > [class*="min-h-screen"] {
+  min-height: 0;
+  background: transparent;
+}
+
+.tracking-page-content main {
+  min-width: 0;
+  padding: 0;
+}
+
+.tracking-page-content main > div {
+  padding: 0;
+}
+
+.tracking-page-content h1 {
+  color: #7a1220;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 600;
+}
+
+.tracking-page-content [class*="border-[#ead4d9]"] {
+  border-color: #ecd9d3;
+}
+
+.tracking-page-content [class*="shadow-[0_10px_35px"] {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.tracking-page-content [class*="bg-[#9d001f]"] {
+  background-color: #7a1220;
+}
+
+.tracking-page-content [class*="bg-[#9d001f]"]:hover {
+  background-color: #621019;
+}
+
+.tracking-page-content [class*="text-[#8b1538]"],
+.tracking-page-content [class*="text-[#9d2449]"] {
+  color: #7a1220;
+}
+
+.tracking-page-content [class*="border-[#9d2449]"] {
+  border-color: #be1e2d;
+}
+
 #root {
   width: 100%;
   min-height: 100svh;
