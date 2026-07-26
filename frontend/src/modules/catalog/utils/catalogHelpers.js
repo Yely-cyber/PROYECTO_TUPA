@@ -71,6 +71,46 @@ export const formatFileSize = (bytes) => {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+// ─────────────────────────────────────────────────────────────────
+// Puente temporal hacia el módulo `tracking` (Desarrollador 3).
+// Cada solicitud enviada desde "Nuevo Trámite" se guarda aquí para que
+// las pantallas de confirmación/historial puedan leerla sin que ambos
+// módulos tengan que importarse entre sí — solo comparten esta "llave"
+// de localStorage y la forma del objeto `solicitud` (ver README/chat).
+// Reemplazar por el servicio real cuando el backend exponga el endpoint.
+// ─────────────────────────────────────────────────────────────────
+const SOLICITUDES_KEY = 'tupa_solicitudes';
+
+export const saveSolicitud = (record) => {
+	try {
+		const solicitudes = getSolicitudes();
+		const solicitud = {
+			id: `sol-${Date.now()}`,
+			estado: 'Iniciado',
+			fecha: new Date().toISOString(),
+			...record,
+		};
+
+		window.localStorage.setItem(SOLICITUDES_KEY, JSON.stringify([...solicitudes, solicitud]));
+		return solicitud;
+	} catch (error) {
+		console.error('No se pudo guardar la solicitud local', error);
+		return null;
+	}
+};
+
+export const getSolicitudes = () => {
+	try {
+		const raw = window.localStorage.getItem(SOLICITUDES_KEY);
+		return raw ? JSON.parse(raw) : [];
+	} catch (error) {
+		console.error('No se pudieron leer las solicitudes locales', error);
+		return [];
+	}
+};
+
+export const getSolicitudById = (id) => getSolicitudes().find((item) => item.id === id) || null;
+
 export const filterTramites = (tramites, { categoria, search } = {}) => {
 	const term = search?.trim().toLowerCase();
 

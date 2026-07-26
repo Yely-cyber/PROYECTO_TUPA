@@ -9,7 +9,7 @@ export const catalogRoutes = [
 	{ path: '/nuevo-tramite', element: <CatalogPage /> },
 	{ path: '/solicitud/:tramiteId', element: <NewTramitePage /> },
 	{
-		path: '/solicitud/:tramiteId/confirmacion',
+		path: '/confirmacion/:solicitudId',
 		element: <ComingSoonPage title="Confirmación de Trámite" active="nuevo-tramite" />,
 	},
 	{ path: '/historial', element: <ComingSoonPage title="Mis Trámites" active="mis-tramites" /> },

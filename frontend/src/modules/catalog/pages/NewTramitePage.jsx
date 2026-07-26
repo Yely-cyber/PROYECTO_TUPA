@@ -5,6 +5,7 @@ import { TramiteFormStep1 } from '../components/TramiteFormStep1';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useTramiteForm } from '../hooks/useTramiteForm';
 import { mockTramites } from '../data/mockTramites';
+import { saveSolicitud, getDisplayName } from '../utils/catalogHelpers';
 
 export const NewTramitePage = () => {
 	const { tramiteId } = useParams();
@@ -37,7 +38,33 @@ export const NewTramitePage = () => {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		form.submit(() => navigate(`/solicitud/${tramite.id}/confirmacion`));
+
+		form.submit(() => {
+			const solicitud = saveSolicitud({
+				tramiteId: tramite.id,
+				tramiteNombre: tramite.nombre,
+				tramiteCategoria: tramite.categoria,
+				tramiteIcon: tramite.icon,
+				tiempoEstimado: tramite.tiempoEstimado,
+				peticion: form.peticion,
+				codigoPago: form.codigoPago,
+				// Solo se guarda la metadata: localStorage no puede persistir el
+				// contenido binario de un File. El envío real de los archivos
+				// (multipart/form-data) queda pendiente hasta que exista el
+				// endpoint del backend.
+				archivos: form.archivos.map(({ file }) => ({
+					nombre: file.name,
+					tamano: file.size,
+					tipo: file.type,
+				})),
+				usuarioNombre: getDisplayName(user),
+				usuarioPerfil: user.profile,
+			});
+
+			if (solicitud) {
+				navigate(`/confirmacion/${solicitud.id}`);
+			}
+		});
 	};
 
 	return (
