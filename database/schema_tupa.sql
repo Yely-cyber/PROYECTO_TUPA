@@ -274,6 +274,23 @@ CREATE TABLE IF NOT EXISTS registro_formularios (
   completado_en DATETIME NULL
 );
 
+-- ---------------------------------------------------------------------
+-- Tabla: comunicaciones
+-- Registra reclamos, consultas y solicitudes de ayuda del portal.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS comunicaciones (
+  id_comunicacion INT AUTO_INCREMENT PRIMARY KEY,
+  categoria ENUM('Reclamo', 'Consulta', 'Ayuda') NOT NULL,
+  nombre_completo VARCHAR(150) NOT NULL,
+  correo VARCHAR(150) NOT NULL,
+  telefono VARCHAR(20),
+  servicio_relacionado VARCHAR(150),
+  asunto VARCHAR(255),
+  mensaje TEXT NOT NULL,
+  estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+  fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO administradores (nombre_admin, email, codigo_acceso, telefono, estado, ultimo_acceso, fecha_creacion)

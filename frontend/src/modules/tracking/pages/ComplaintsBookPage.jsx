@@ -2,6 +2,27 @@ const fieldStyles =
   'mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#9d2449] focus:ring-3 focus:ring-[#9d2449]/10';
 
 export function ComplaintsBookPage() {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      await registrarComunicacion({
+        categoria: data.get('tipoSolicitud'),
+        nombreCompleto: data.get('nombres'),
+        correo: data.get('correo'),
+        telefono: data.get('telefono'),
+        servicioRelacionado: data.get('servicioRelacionado'),
+        mensaje: data.get('detalle'),
+      });
+      form.reset();
+      window.alert('Comunicación registrada correctamente.');
+    } catch (error) {
+      window.alert(error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
 <div className="min-h-screen">
@@ -15,7 +36,7 @@ export function ComplaintsBookPage() {
             </div>
 
             <form
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleSubmit}
               className="rounded-2xl border border-[#ead4d9] bg-white p-5 shadow-[0_10px_35px_rgba(100,20,45,0.08)] sm:p-7 lg:p-8"
             >
               <div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
@@ -24,7 +45,6 @@ export function ComplaintsBookPage() {
                   <select name="tipoSolicitud" defaultValue="Reclamo" className={fieldStyles}>
                     <option>Reclamo</option>
                     <option>Consulta</option>
-                    <option>Queja</option>
                   </select>
                 </label>
 
@@ -107,3 +127,4 @@ export function ComplaintsBookPage() {
     </div>
   );
 }
+import { registrarComunicacion } from '../services/comunicacionesService';

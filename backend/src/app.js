@@ -85,6 +85,7 @@ app.use('/api/auth', loadRouter('./modules/auth/auth.routes'));
 app.use('/api/admin', loadRouter('./modules/admin/admin.routes'));
 app.use('/api/catalog', loadRouter('./modules/catalog/catalog.routes'));
 app.use('/api/tracking', loadRouter('./modules/tracking/tracking.routes'));
+app.use('/api/comunicaciones', loadRouter('./modules/comunicaciones/comunicaciones.routes'));
 
 app.use((_req, res) => {
 	res.status(404).json({

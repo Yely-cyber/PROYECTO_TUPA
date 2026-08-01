@@ -43,6 +43,26 @@ const InfoIcon = ({ type }) => {
 };
 
 export function ContactPage() {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      await registrarComunicacion({
+        categoria: 'Ayuda',
+        nombreCompleto: data.get('nombre'),
+        correo: data.get('correo'),
+        asunto: data.get('asunto'),
+        mensaje: data.get('mensaje'),
+      });
+      form.reset();
+      window.alert('Comunicación registrada correctamente.');
+    } catch (error) {
+      window.alert(error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
 <div className="min-h-screen">
@@ -56,7 +76,7 @@ export function ContactPage() {
             </div>
 
             <form
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleSubmit}
               className="rounded-2xl border border-[#ead4d9] bg-white p-5 shadow-[0_10px_35px_rgba(100,20,45,0.08)] sm:p-7 lg:p-8"
             >
               <h2 className="mb-6 text-xl font-extrabold text-slate-900">Envíanos un mensaje</h2>
@@ -136,3 +156,4 @@ export function ContactPage() {
     </div>
   );
 }
+import { registrarComunicacion } from '../services/comunicacionesService';
