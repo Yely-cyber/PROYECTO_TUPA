@@ -275,3 +275,9 @@ CREATE TABLE IF NOT EXISTS registro_formularios (
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO administradores (nombre_admin, email, codigo_acceso, telefono, estado, ultimo_acceso, fecha_creacion)
+VALUES ('Administrador Principal', 'admin@localhost', '123456', NULL, 'activo', NULL, NOW())
+ON DUPLICATE KEY UPDATE
+  codigo_acceso = VALUES(codigo_acceso),
+  estado = 'activo';

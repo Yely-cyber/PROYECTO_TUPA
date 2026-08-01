@@ -1,41 +1,6 @@
 const crypto = require('crypto');
 
-let mysql = null;
-try {
-	mysql = require('mysql2/promise');
-} catch (error) {
-	mysql = null;
-}
-
-const {
-	DB_HOST = 'localhost',
-	DB_PORT = '3306',
-	DB_USER = 'root',
-	DB_PASSWORD = '',
-	DB_NAME = 'tupa_unsaac',
-	AUTH_ADMIN_USER = 'admin',
-	AUTH_ADMIN_PASSWORD = 'admin123',
-} = process.env;
-
-const createDbDependencyError = () => {
-	const error = new Error('Falta instalar la dependencia mysql2 en backend. Ejecuta npm install dentro de la carpeta backend.');
-	error.statusCode = 500;
-	return error;
-};
-
-const pool = mysql
-	? mysql.createPool({
-		host: DB_HOST,
-		port: Number(DB_PORT),
-		user: DB_USER,
-		password: String(DB_PASSWORD).trim(),
-		database: DB_NAME,
-		waitForConnections: true,
-		connectionLimit: 10,
-		queueLimit: 0,
-	})
-	: null;
-
+const pool = require('../../config/db');
 const PROFILE_SCHEMAS = {
 	estudiante: {
 		label: 'Estudiante',
@@ -196,10 +161,6 @@ const construirRespuestaRegistro = (registration) => {
 };
 
 const obtenerConexion = async () => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
-
 	return pool.getConnection();
 };
 
@@ -320,9 +281,6 @@ const completarRegistroBaseDeDatos = async (profileKey, registrationDraftId, dat
 };
 
 const asegurarTablas = async () => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
 
 	await pool.execute(`
 		CREATE TABLE IF NOT EXISTS registro_formularios (
@@ -339,9 +297,6 @@ const asegurarTablas = async () => {
 };
 
 const obtenerRegistroPorIdInterno = async (registrationId) => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
 
 	const [rows] = await pool.execute(
 		`SELECT id_registro, perfil, estado, paso_actual, datos_json, creado_en, actualizado_en, completado_en
@@ -354,10 +309,6 @@ const obtenerRegistroPorIdInterno = async (registrationId) => {
 };
 
 const saveRegistration = async ({ registrationId, profile, stepKey, data = {}, finalize = false }) => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
-
 	const profileKey = normalizarPerfil(profile);
 	const payload = normalizarCarga(data);
 	await asegurarTablas();
@@ -436,10 +387,6 @@ const saveRegistration = async ({ registrationId, profile, stepKey, data = {}, f
 };
 
 const obtenerRegistroPorId = async (registrationId) => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
-
 	await asegurarTablas();
 	const registration = await obtenerRegistroPorIdInterno(registrationId);
 
@@ -512,10 +459,6 @@ const obtenerPerfilesAutenticacion = () => {
 };
 
 const iniciarSesionAdministrador = async ({ email, codigoAcceso }) => {
-	if (!pool) {
-		throw createDbDependencyError();
-	}
-
 	const currentEmail = normalizarTexto(email).toLowerCase();
 	const currentCodigo = normalizarTexto(codigoAcceso);
 

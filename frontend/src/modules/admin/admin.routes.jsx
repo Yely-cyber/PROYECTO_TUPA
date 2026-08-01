@@ -1,18 +1,92 @@
-// src/modules/admin/admin.routes.jsx
-import { AdminDashboardPage } from './pages/AdminDashboardPage';
-import { TramitesManagerPage } from './pages/TramitesManagerPage';
-import { TramiteCreateEditPage } from './pages/TramiteCreateEditPage';
-import { ExpedientesManagerPage } from './pages/ExpedientesManagerPage';
-import { ExpedienteReviewPage } from './pages/ExpedienteReviewPage';
-import { CategoriesManagerPage } from './pages/CategoriesManagerPage';
-import { DocumentManagerPage } from './pages/DocumentManagerPage';
+import { Navigate } from 'react-router-dom';
 
-export const adminRoutes = [
-  { path: '/admin/dashboard', element: <AdminDashboardPage /> },
-  { path: '/admin/tramites', element: <TramitesManagerPage /> },
-  { path: '/admin/tramites/nuevo', element: <TramiteCreateEditPage /> },
-  { path: '/admin/expedientes', element: <ExpedientesManagerPage /> },
-  { path: '/admin/expedientes/:id/revisar', element: <ExpedienteReviewPage /> },
-  { path: '/admin/categorias', element: <CategoriesManagerPage /> },
-  { path: '/admin/documentos', element: <DocumentManagerPage /> },
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import TramiteManagerPage from './pages/TramiteManagerPage';
+import TramiteCreateEditPage from './pages/TramiteCreateEditPage';
+import ExpedientesManagerPage from './pages/ExpedientesManagerPage';
+import ExpedienteReviewPage from './pages/ExpedienteReviewPage';
+import CategoriesManagerPage from './pages/CategoriesManagerPage';
+import DocumentManagerPage from './pages/DocumentManagerPage';
+
+import { getSession } from '../auth/services/authService';
+
+function RequireAdminAuth({ children }) {
+	const session = getSession();
+
+	if (!session || session.role !== 'admin') {
+		return <Navigate to="/admin/login" replace />;
+	}
+
+	return children;
+}
+
+export const AdminRoutes = [
+	{
+		path: '/admin/dashboard',
+		element: (
+			<RequireAdminAuth>
+				<AdminDashboardPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/tramites',
+		element: (
+			<RequireAdminAuth>
+				<TramiteManagerPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/tramites/nuevo',
+		element: (
+			<RequireAdminAuth>
+				<TramiteCreateEditPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/tramites/:id/editar',
+		element: (
+			<RequireAdminAuth>
+				<TramiteCreateEditPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/expedientes',
+		element: (
+			<RequireAdminAuth>
+				<ExpedientesManagerPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/expedientes/:id',
+		element: (
+			<RequireAdminAuth>
+				<ExpedienteReviewPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/categorias',
+		element: (
+			<RequireAdminAuth>
+				<CategoriesManagerPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/documentos',
+		element: (
+			<RequireAdminAuth>
+				<DocumentManagerPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin',
+		element: <Navigate to="/admin/dashboard" replace />,
+	},
 ];
