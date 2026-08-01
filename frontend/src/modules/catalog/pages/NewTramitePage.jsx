@@ -102,7 +102,8 @@ export const NewTramitePage = () => {
 				usuarioPerfil: user.profile,
 				numeroExpediente: expediente.numeroExpediente,
 				expedienteId: expediente.id,
-				estado: expediente.estado === 'enviado' ? 'Iniciado' : expediente.estado,
+				estado: expediente.estado === 'iniciado' ? 'Iniciado' : expediente.estado,
+				fechaCreacion: expediente.fechaCreacion,
 			});
 
 			if (solicitud) {

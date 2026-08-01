@@ -1,39 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTramitesConfirmados } from '../../catalog/utils/catalogHelpers';
-
-const tramites = [
-  {
-    id: 'EXP-2026-001248',
-    tipo: 'Constancia de estudios',
-    estado: 'Aprobado',
-    fecha: '18/07/2026'
-  },
-  {
-    id: 'EXP-2026-001196',
-    tipo: 'Duplicado de carné universitario',
-    estado: 'En revisión',
-    fecha: '12/07/2026'
-  },
-  {
-    id: 'EXP-2026-001087',
-    tipo: 'Certificado de notas',
-    estado: 'Iniciado',
-    fecha: '04/07/2026'
-  },
-  {
-    id: 'EXP-2026-000954',
-    tipo: 'Solicitud de reserva de matrícula',
-    estado: 'Observado',
-    fecha: '26/06/2026'
-  },
-  {
-    id: 'EXP-2026-000832',
-    tipo: 'Constancia de egresado',
-    estado: 'Aprobado',
-    fecha: '10/06/2026'
-  }
-];
+import { getCurrentUser, getEstadoVisible } from '../../catalog/utils/catalogHelpers';
+import { listarExpedientesUsuario } from '../services/trackingService';
 
 const estadoStyles = {
   Aprobado: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
@@ -53,26 +21,45 @@ export function HistoryPage() {
   const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState('');
   const [estado, setEstado] = useState('Todos');
-  const [tramitesConfirmados] = useState(() => getTramitesConfirmados());
+  const [tramites, setTramites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (!user?.email) {
+      setError('No se encontró el usuario actual.');
+      setLoading(false);
+      return;
+    }
+
+    listarExpedientesUsuario(user.email)
+      .then((expedientes) => setTramites(expedientes.map((expediente) => ({
+        id: expediente.numero_expediente,
+        tipo: expediente.tramite,
+        estado: getEstadoVisible(expediente.estado || 'enviado'),
+        fecha: expediente.fecha_registro,
+      }))))
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const tramitesFiltrados = useMemo(() => {
     const termino = busqueda.trim().toLocaleLowerCase('es');
-    const confirmados = [...tramitesConfirmados]
+    const historialCompleto = [...tramites]
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
       .map((tramite) => ({
         ...tramite,
-        estado: tramite.estado === 'iniciado' ? 'Iniciado' : tramite.estado,
+        estado: getEstadoVisible(tramite.estado),
         fecha: new Date(tramite.fecha).toLocaleDateString('es-PE'),
       }));
-    const idsConfirmados = new Set(confirmados.map((tramite) => tramite.id));
-    const historialCompleto = [...confirmados, ...tramites.filter((tramite) => !idsConfirmados.has(tramite.id))];
 
     return historialCompleto.filter((tramite) => {
       const coincideNombre = tramite.tipo.toLocaleLowerCase('es').includes(termino);
       const coincideEstado = estado === 'Todos' || tramite.estado === estado;
       return coincideNombre && coincideEstado;
     });
-  }, [busqueda, estado, tramitesConfirmados]);
+  }, [busqueda, estado, tramites]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
@@ -123,6 +110,9 @@ export function HistoryPage() {
               </div>
 
               <div className="overflow-x-auto">
+                {loading && <p className="px-6 py-10 text-center text-sm text-slate-500">Cargando expedientes...</p>}
+                {error && <p className="px-6 py-10 text-center text-sm text-red-600">{error}</p>}
+                {!loading && !error && (
                 <table className="w-full min-w-[780px] border-collapse text-left">
                   <thead className="bg-slate-50">
                     <tr className="border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -148,14 +138,7 @@ export function HistoryPage() {
                           <button
                             type="button"
                             onClick={() =>
-                              navigate(`/seguimiento/${tramite.id}`, {
-                                state: {
-                                  expedienteId: tramite.id,
-                                  tipo: tramite.tipo,
-                                  estado: tramite.estado,
-                                  fecha: tramite.fecha
-                                }
-                              })
+                              navigate(`/seguimiento/${tramite.id}`)
                             }
                             className="rounded-lg border border-[#9d2449] px-4 py-2 text-sm font-bold text-[#8b1538] transition hover:bg-[#8b1538] hover:text-white focus:outline-none focus:ring-3 focus:ring-[#9d2449]/20"
                           >
@@ -166,9 +149,10 @@ export function HistoryPage() {
                     ))}
                   </tbody>
                 </table>
+                )}
               </div>
 
-              {tramitesFiltrados.length === 0 && (
+              {!loading && !error && tramitesFiltrados.length === 0 && (
                 <div className="border-t border-slate-100 px-6 py-14 text-center">
                   <p className="font-semibold text-slate-700">No se encontraron trámites</p>
                   <p className="mt-1 text-sm text-slate-500">Prueba con otro nombre o selecciona un estado diferente.</p>
@@ -177,7 +161,7 @@ export function HistoryPage() {
 
               <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-6 py-4 text-xs text-slate-500">
                 <span>{tramitesFiltrados.length} trámite{tramitesFiltrados.length === 1 ? '' : 's'} encontrado{tramitesFiltrados.length === 1 ? '' : 's'}</span>
-                <span>Datos actualizados al 24/07/2026</span>
+                <span>Datos actualizados al {new Date().toLocaleDateString('es-PE')}</span>
               </div>
             </section>
           </div>

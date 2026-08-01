@@ -15,11 +15,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- (ver auth.service.js -> perfilPorTipoUsuario) para no introducir un
 -- segundo vocabulario de roles en la base de datos.
 -- ---------------------------------------------------------------------
--- ALTER TABLE tramites
---   ADD COLUMN perfil_objetivo
---     ENUM('estudiante','docente','administrativo','institucional','general','externo')
---     NOT NULL DEFAULT 'estudiante'
---     AFTER categoria;
+ALTER TABLE tramites
+  ADD COLUMN perfil_objetivo
+    ENUM('estudiante','docente','administrativo','institucional','general','externo')
+    NOT NULL DEFAULT 'estudiante'
+    AFTER categoria;
 
 -- ---------------------------------------------------------------------
 -- Clasificar los 10 trámites ya sembrados (todos son trámites

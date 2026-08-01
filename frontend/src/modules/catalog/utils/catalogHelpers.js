@@ -116,6 +116,18 @@ export const getIconForCategoria = (categoria) => ICONOS_POR_CATEGORIA[categoria
 // ─────────────────────────────────────────────────────────────────
 const SOLICITUDES_KEY = 'tupa_solicitudes';
 
+const ESTADO_VISIBLE = {
+	enviado: 'Iniciado',
+	iniciado: 'Iniciado',
+	recibido: 'En revisión',
+	en_proceso: 'En revisión',
+	finalizado: 'Aprobado',
+	observado: 'Observado',
+	rechazado: 'Observado',
+};
+
+export const getEstadoVisible = (estado) => ESTADO_VISIBLE[String(estado || '').toLowerCase()] || estado;
+
 export const saveSolicitud = (record) => {
 	try {
 		const solicitudes = getSolicitudes();
@@ -161,7 +173,7 @@ export const saveTramiteConfirmado = (solicitud) => {
 
 		const actualizado = {
 			...solicitudes[index],
-			estado: 'En revisión',
+			estado: 'Iniciado',
 			confirmadoEn: new Date().toISOString(),
 		};
 
@@ -185,8 +197,9 @@ export const getTramitesConfirmados = () =>
 		.map((item) => ({
 			id: item.numeroExpediente || item.id,
 			tipo: item.tramiteNombre,
-			estado: item.estado,
-			fecha: item.confirmadoEn,
+			estado: getEstadoVisible(item.estado),
+			fecha: item.fechaCreacion || item.fecha,
+			fechaCreacion: item.fechaCreacion || item.fecha,
 		}));
 
 export const filterTramites = (tramites, { categoria, search } = {}) => {

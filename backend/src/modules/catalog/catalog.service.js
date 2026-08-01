@@ -164,12 +164,15 @@ const obtenerUsuarioIdPorEmail = async (conexion, email) => {
 
 const generarNumeroExpediente = async (conexion) => {
 	const anio = new Date().getFullYear();
-	const [filas] = await conexion.execute('SELECT COUNT(*) AS total FROM expedientes WHERE numero_expediente LIKE ?', [
-		`${anio}-%`,
-	]);
+	const [filas] = await conexion.execute(
+		`SELECT COALESCE(MAX(CAST(SUBSTRING_INDEX(numero_expediente, '-', -1) AS UNSIGNED)), 0) AS ultimo
+		 FROM expedientes
+		 WHERE numero_expediente LIKE ? OR numero_expediente LIKE ?`,
+		[`${anio}-%`, `EXP-${anio}-%`],
+	);
 
-	const siguiente = Number(filas[0].total) + 1;
-	return `${anio}-${String(siguiente).padStart(6, '0')}`;
+	const siguiente = Number(filas[0].ultimo) + 1;
+	return `EXP-${anio}-${String(siguiente).padStart(6, '0')}`;
 };
 
 const crearExpediente = async ({ tramiteId, email, peticion, codigoPago, idTipoDocumento, archivos = [] }) => {
@@ -271,13 +274,19 @@ const crearExpediente = async ({ tramiteId, email, peticion, codigoPago, idTipoD
 			[idExpediente, tramite.id_dependencia_destino],
 		);
 
+		const [[registroCreacion]] = await conexion.execute(
+			'SELECT fecha_registro FROM expedientes WHERE id_expediente = ?',
+			[idExpediente],
+		);
+
 		await conexion.commit();
 
 		return {
 			id: idExpediente,
 			numeroExpediente,
 			tramite: { id: tramite.id_tramite, nombre: tramite.nombre },
-			estado: 'enviado',
+			estado: 'iniciado',
+			fechaCreacion: registroCreacion.fecha_registro,
 			codigoPago: String(codigoPago).trim(),
 			archivosGuardados: archivos.length,
 		};

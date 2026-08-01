@@ -1,5 +1,5 @@
 const VIDEO_TUTORIAL_URL = 'https://www.youtube.com/embed/hMX_uSFRS44';
-const MANUAL_PDF_URL = '#';
+const MANUAL_PDF_URL = '/manuales/manual-usuario-tupa.pdf';
 
 const preguntasFrecuentes = [
   {
