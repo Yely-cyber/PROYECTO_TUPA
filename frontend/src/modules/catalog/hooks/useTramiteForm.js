@@ -43,17 +43,28 @@ export const useTramiteForm = () => {
 		return Object.keys(nextErrors).length === 0;
 	};
 
-	const submit = async (onSuccess) => {
+	// `onSubmit` ahora es la función que hace el trabajo real (llamar a
+	// catalogService.crearExpediente). Si falla — red caída, backend
+	// devolviendo un error de validación, etc. — el mensaje queda en
+	// errors.form para mostrarlo en el formulario.
+	const submit = async (onSubmit) => {
 		if (!validate()) return false;
 
 		setSubmitting(true);
-		// Simulación de envío. Cuando exista el endpoint real, aquí iría el
-		// POST (multipart/form-data) con peticion, archivos y codigoPago.
-		await new Promise((resolve) => setTimeout(resolve, 400));
-		setSubmitting(false);
+		setErrors((prev) => ({ ...prev, form: undefined }));
 
-		onSuccess?.();
-		return true;
+		try {
+			await onSubmit();
+			return true;
+		} catch (error) {
+			setErrors((prev) => ({
+				...prev,
+				form: error?.message || 'No se pudo enviar el trámite. Intenta nuevamente.',
+			}));
+			return false;
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	return {

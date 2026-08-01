@@ -8,6 +8,9 @@ export const CatalogCard = ({ tramite, onSolicitar }) => (
 			</div>
 			<h3 className="mt-4 text-base font-semibold text-slate-900">{tramite.nombre}</h3>
 			<p className="mt-1 text-sm leading-6 text-slate-500">{tramite.descripcion}</p>
+			{tramite.costoLabel ? (
+				<p className="mt-2 text-xs font-semibold text-[#7a1220]">{tramite.costoLabel}</p>
+			) : null}
 		</div>
 
 		<div className="mt-5 flex items-center justify-between">

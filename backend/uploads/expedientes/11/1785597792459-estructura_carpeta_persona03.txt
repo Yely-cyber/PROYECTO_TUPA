@@ -1,0 +1,37 @@
+frontend/src/modules/tracking/
+│
+├── components/                       <-- Componentes reutilizables SOLO para este módulo
+│   ├── TimelineView.jsx              <-- Componente visual de la línea de tiempo (Ruta/Estados del trámite)
+│   ├── MyDocumentsModal.jsx          <-- Modal flotante de "Mis Documentos" (Acceso desde el Dashboard)
+│   ├── DocumentViewerModal.jsx       <-- Modal para previsualizar PDFs o imágenes de requisitos
+│   ├── TramiteHistoryTable.jsx       <-- Tabla interactiva con el historial de trámites ("Mis Trámites")
+│   ├── ReclamacionesForm.jsx         <-- Formulario estandarizado para el Libro de Reclamaciones
+│   └── StatusBadge.jsx               <-- Indicador visual de estado (En Proceso, Finalizado, Observado)
+│
+├── data/                             <-- Mocks o datos de prueba (para trabajar sin esperar la API)
+│   ├── mockHistory.js                <-- Historial de trámites del usuario con sus estados
+│   ├── mockTimeline.js               <-- Pasos y movimientos de un expediente específico
+│   └── mockDocuments.js              <-- Lista de documentos del repositorio personal
+│
+├── hooks/                            <-- Lógica de estado y datos aislados
+│   ├── useTracking.js                <-- Hook para consultar la línea de tiempo de un expediente por ID o código
+│   ├── useHistory.js                 <-- Hook para obtener y filtrar la lista de "Mis Trámites"
+│   └── useUserDocuments.js           <-- Hook para listar, subir y eliminar archivos del modal "Mis Documentos"
+│
+├── pages/                            <-- Páginas principales (Las 7 Interfaces a cargo)
+│   ├── TramiteConfirmationPage.jsx   <-- Fig 17: Confirmación de Trámite (Pantalla final post-envío)
+│   ├── HistoryPage.jsx               <-- Fig 18: Historial de Trámites / Mis Trámites
+│   ├── TrackingTimelinePage.jsx      <-- Fig 19: Seguimiento de Trámite / Línea de tiempo
+│   ├── UserManualPage.jsx            <-- Fig 20: Manual de Usuario o Ayuda
+│   ├── ComplaintsBookPage.jsx        <-- Fig 21: Libro de Reclamaciones
+│   ├── ContactPage.jsx               <-- Fig 22: Contacto Institucional
+│   └── DocumentsPage.jsx             <-- Vista standalone de "Mis Documentos" (si no se abre como Modal)
+│
+├── services/                         <-- Comunicación HTTP exclusiva de este módulo
+│   └── trackingService.js            <-- Peticiones Axios al backend (/api/expedientes/tracking, /api/documentos, etc.)
+│
+├── utils/                            <-- Utilidades de formato
+│   └── trackingHelpers.js            <-- Formateadores de fechas, generador de QR/código de seguimiento, etc.
+│
+├── index.js                          <-- Archivo de exportación pública (Barrel File)
+└── tracking.routes.jsx               <-- Definición local de rutas para este módulo

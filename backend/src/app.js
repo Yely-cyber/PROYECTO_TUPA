@@ -47,6 +47,10 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Sirve los archivos adjuntos guardados por catalog.service.js
+// (documentos_adjuntos.ruta_archivo apunta a rutas bajo /uploads/...).
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 const loadRouter = (modulePath) => {
 	try {
 		const loadedModule = require(modulePath);

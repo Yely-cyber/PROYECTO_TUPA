@@ -71,6 +71,41 @@ export const formatFileSize = (bytes) => {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+// El backend devuelve `tiempo` en días (número) y `costo` en soles
+// (número). Estos helpers los convierten al formato legible que ya
+// esperan los componentes (CatalogCard, NewTramitePage, etc.).
+export const formatTiempoEstimado = (dias) => {
+	const numero = Number(dias);
+	if (!Number.isFinite(numero) || numero <= 0) return 'Consultar';
+	return numero === 1 ? '1 día hábil' : `${numero} días hábiles`;
+};
+
+export const formatCosto = (costo) => {
+	const numero = Number(costo);
+	if (!Number.isFinite(numero) || numero <= 0) return 'Gratuito';
+	return `S/ ${numero.toFixed(2)}`;
+};
+
+// El backend no guarda íconos por trámite; se asignan en el frontend
+// según la categoría oficial (ver database/catalog_perfiles.sql).
+const ICONOS_POR_CATEGORIA = {
+	'ESCUELA DE POSTGRADO ESTUDIANTES': '🎓',
+	'FACULTADES ESTUDIANTES': '📄',
+	'UNIDAD DE BIBLIOTECA ESTUDIANTES': '📖',
+	'CENTRO DE CÓMPUTO': '💻',
+	'DIRECCIÓN DE BIENESTAR UNIVERSITARIO': '🩺',
+	'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS': '🪪',
+	'INSTITUTO DE IDIOMAS': '🌐',
+	'UNIDAD DE BIBLIOTECA DOCENTES Y ADMINISTRATIVOS': '📖',
+	'RECTORADO - SECRETARIA GENERAL': '🏛️',
+	'FACULTADES OTROS': '🏟️',
+	'DIRECCIÓN GENERAL DE ADMISIÓN': '📝',
+	'ESCUELA DE POSTGRADO ADMISIÓN Y TRASLADO EXTERNO': '🎓',
+	'RESIDENTADO MEDICO': '🩺',
+};
+
+export const getIconForCategoria = (categoria) => ICONOS_POR_CATEGORIA[categoria] || '📄';
+
 // ─────────────────────────────────────────────────────────────────
 // Puente temporal hacia el módulo `tracking` (Desarrollador 3).
 // Cada solicitud enviada desde "Nuevo Trámite" se guarda aquí para que
@@ -111,41 +146,48 @@ export const getSolicitudes = () => {
 
 export const getSolicitudById = (id) => getSolicitudes().find((item) => item.id === id) || null;
 
-const HISTORIAL_TRAMITES_KEY = 'tupa_historial_tramites';
-
-export const getTramitesConfirmados = () => {
-	try {
-		const raw = window.localStorage.getItem(HISTORIAL_TRAMITES_KEY);
-		return raw ? JSON.parse(raw) : [];
-	} catch (error) {
-		console.error('No se pudo leer el historial local de trámites', error);
-		return [];
-	}
-};
-
+// Llamada por TramitesConfirmationPage.jsx (tracking) al presionar
+// "Confirmar trámite". Actualiza el estado de la solicitud ya guardada y
+// devuelve el registro actualizado (o null si no se encontró / falló el
+// guardado, para que la página pueda cortar el flujo si algo sale mal).
 export const saveTramiteConfirmado = (solicitud) => {
-	try {
-		const historial = getTramitesConfirmados();
-		const existente = historial.find((item) => item.id === solicitud.id);
-		if (existente) return existente;
+	if (!solicitud?.id) return null;
 
-		const registro = {
-			id: solicitud.id,
-			tramiteId: solicitud.tramiteId,
-			tipo: solicitud.tramiteNombre,
-			peticion: solicitud.peticion,
-			fecha: new Date().toISOString(),
-			estado: 'iniciado',
-			codigoPago: solicitud.codigoPago,
+	try {
+		const solicitudes = getSolicitudes();
+		const index = solicitudes.findIndex((item) => item.id === solicitud.id);
+
+		if (index === -1) return null;
+
+		const actualizado = {
+			...solicitudes[index],
+			estado: 'En revisión',
+			confirmadoEn: new Date().toISOString(),
 		};
 
-		window.localStorage.setItem(HISTORIAL_TRAMITES_KEY, JSON.stringify([...historial, registro]));
-		return registro;
+		solicitudes[index] = actualizado;
+		window.localStorage.setItem(SOLICITUDES_KEY, JSON.stringify(solicitudes));
+
+		return actualizado;
 	} catch (error) {
-		console.error('No se pudo guardar el trámite confirmado', error);
+		console.error('No se pudo confirmar la solicitud local', error);
 		return null;
 	}
 };
+
+// Llamada por HistoryPage.jsx (tracking) para armar "Mis Trámites". Solo
+// devuelve las solicitudes que el usuario ya confirmó explícitamente
+// (pasaron por saveTramiteConfirmado, es decir tienen `confirmadoEn`) —
+// las que quedaron a medio enviar no aparecen en el historial.
+export const getTramitesConfirmados = () =>
+	getSolicitudes()
+		.filter((item) => Boolean(item.confirmadoEn))
+		.map((item) => ({
+			id: item.numeroExpediente || item.id,
+			tipo: item.tramiteNombre,
+			estado: item.estado,
+			fecha: item.confirmadoEn,
+		}));
 
 export const filterTramites = (tramites, { categoria, search } = {}) => {
 	const term = search?.trim().toLowerCase();

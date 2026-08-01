@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { CatalogLayout } from '../components/CatalogLayout';
 import { TramiteFormStep1 } from '../components/TramiteFormStep1';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useTramiteForm } from '../hooks/useTramiteForm';
-import { mockTramites } from '../data/mockTramites';
+import { getTramiteById, crearExpediente } from '../services/catalogService';
 import { saveSolicitud, getDisplayName } from '../utils/catalogHelpers';
 
 export const NewTramitePage = () => {
@@ -13,17 +14,49 @@ export const NewTramitePage = () => {
 	const { user, checked, logout } = useCurrentUser();
 	const form = useTramiteForm();
 
+	const [tramite, setTramite] = useState(null);
+	const [loadingTramite, setLoadingTramite] = useState(true);
+	const [loadError, setLoadError] = useState('');
+
+	useEffect(() => {
+		let isMounted = true;
+
+		setLoadingTramite(true);
+		setLoadError('');
+
+		getTramiteById(tramiteId)
+			.then((data) => {
+				if (isMounted) setTramite(data);
+			})
+			.catch((error) => {
+				if (isMounted) setLoadError(error.message || 'No se pudo cargar el trámite.');
+			})
+			.finally(() => {
+				if (isMounted) setLoadingTramite(false);
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, [tramiteId]);
+
 	if (!checked || !user) {
 		return null;
 	}
 
-	const tramite = mockTramites.find((item) => item.id === tramiteId);
+	if (loadingTramite) {
+		return (
+			<CatalogLayout user={user} active="nuevo-tramite" onNavigate={navigate} onLogout={logout}>
+				<p className="text-sm text-slate-400">Cargando trámite…</p>
+			</CatalogLayout>
+		);
+	}
 
-	if (!tramite) {
+	if (loadError || !tramite) {
 		return (
 			<CatalogLayout user={user} active="nuevo-tramite" onNavigate={navigate} onLogout={logout}>
 				<div className="mx-auto max-w-2xl rounded-2xl border border-[#ecd9d3] bg-white p-10 text-center shadow-sm">
-					<p className="text-sm text-slate-500">No encontramos el trámite solicitado.</p>
+					<p className="text-sm text-slate-500">{loadError || 'No encontramos el trámite solicitado.'}</p>
 					<button
 						type="button"
 						onClick={() => navigate('/nuevo-tramite')}
@@ -39,7 +72,19 @@ export const NewTramitePage = () => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		form.submit(() => {
+		form.submit(async () => {
+			const formData = new FormData();
+			formData.append('tramiteId', tramite.id);
+			formData.append('email', user.email || '');
+			formData.append('peticion', form.peticion);
+			formData.append('codigoPago', form.codigoPago);
+			form.archivos.forEach(({ file }) => formData.append('archivos', file));
+
+			const expediente = await crearExpediente(formData);
+
+			// Puente hacia `tracking`: se sigue alimentando localStorage
+			// (tal como ya lo consume TramitesConfirmationPage) pero ahora
+			// con los datos reales que devolvió el backend.
 			const solicitud = saveSolicitud({
 				tramiteId: tramite.id,
 				tramiteNombre: tramite.nombre,
@@ -48,10 +93,6 @@ export const NewTramitePage = () => {
 				tiempoEstimado: tramite.tiempoEstimado,
 				peticion: form.peticion,
 				codigoPago: form.codigoPago,
-				// Solo se guarda la metadata: localStorage no puede persistir el
-				// contenido binario de un File. El envío real de los archivos
-				// (multipart/form-data) queda pendiente hasta que exista el
-				// endpoint del backend.
 				archivos: form.archivos.map(({ file }) => ({
 					nombre: file.name,
 					tamano: file.size,
@@ -59,6 +100,9 @@ export const NewTramitePage = () => {
 				})),
 				usuarioNombre: getDisplayName(user),
 				usuarioPerfil: user.profile,
+				numeroExpediente: expediente.numeroExpediente,
+				expedienteId: expediente.id,
+				estado: expediente.estado === 'enviado' ? 'Iniciado' : expediente.estado,
 			});
 
 			if (solicitud) {
@@ -88,9 +132,12 @@ export const NewTramitePage = () => {
 						<p className="text-xs font-semibold uppercase tracking-wide text-[#b3791f]">{tramite.categoria}</p>
 						<h1 className="mt-1 text-xl font-semibold text-slate-900">{tramite.nombre}</h1>
 						<p className="mt-1 text-sm leading-6 text-slate-500">{tramite.descripcion}</p>
-						<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-							<Clock size={14} />
-							Tiempo estimado: {tramite.tiempoEstimado}
+						<p className="mt-2 flex items-center gap-3 text-xs font-medium text-slate-400">
+							<span className="flex items-center gap-1.5">
+								<Clock size={14} />
+								Tiempo estimado: {tramite.tiempoEstimado}
+							</span>
+							<span className="font-semibold text-[#7a1220]">{tramite.costoLabel}</span>
 						</p>
 					</div>
 				</div>
@@ -100,6 +147,12 @@ export const NewTramitePage = () => {
 					className="mt-6 space-y-6 rounded-2xl border border-[#ecd9d3] bg-white p-6 shadow-sm sm:p-8"
 				>
 					<TramiteFormStep1 form={form} />
+
+					{form.errors.form ? (
+						<p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+							{form.errors.form}
+						</p>
+					) : null}
 
 					<div className="flex justify-end border-t border-[#f3e8e4] pt-6">
 						<button
