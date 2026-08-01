@@ -15,7 +15,7 @@ export const AdminLoginPage = () => {
 		event.preventDefault();
 		const response = await signInAdmin(values);
 		if (response.success) {
-			window.location.assign('/');
+			window.location.assign('/admin/dashboard');
 		}
 	};
 
