@@ -7,6 +7,7 @@ const statusStyles = {
   Iniciado: { badge: 'bg-blue-50 text-blue-700 ring-blue-600/20', text: 'text-blue-700', icon: 'clock' },
   'En revisión': { badge: 'bg-amber-50 text-amber-700 ring-amber-600/25', text: 'text-amber-700', icon: 'review' },
   Observado: { badge: 'bg-red-50 text-red-700 ring-red-600/20', text: 'text-red-600', icon: 'observed' },
+  Rechazado: { badge: 'bg-red-50 text-red-700 ring-red-600/20', text: 'text-red-600', icon: 'observed' },
   Aprobado: { badge: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', text: 'text-emerald-700', icon: 'approved' }
 };
 
@@ -30,13 +31,16 @@ const fechaHora = (value) => {
 };
 
 const movimientoAEtapa = (movimiento) => {
-  const estado = getEstadoVisible(movimiento.estado);
+  const esRechazo = movimiento.estado === 'observado' && movimiento.observaciones?.startsWith('[RECHAZADO]');
+  const estado = esRechazo ? 'Rechazado' : getEstadoVisible(movimiento.estado);
   const config = {
     'En revisión': { descripcion: 'El área responsable se encuentra revisando la documentación presentada.', type: 'review' },
     Aprobado: { descripcion: 'Tu trámite fue aprobado.', type: 'approved' },
     Observado: { descripcion: movimiento.observaciones || 'Se requiere corrección o documentación adicional.', type: 'observed' },
+    Rechazado: { descripcion: movimiento.observaciones?.replace(/^\[RECHAZADO\]\s*/, '') || 'El expediente fue rechazado.', type: 'observed' },
   }[estado];
-  return config ? { id: movimiento.id_movimiento, estado, ...fechaHora(movimiento.fecha_envio), ...config } : null;
+  const fechaEstado = movimiento.fecha_recepcion || movimiento.fecha_envio;
+  return config ? { id: movimiento.id_movimiento, estado, ...fechaHora(fechaEstado), ...config } : null;
 };
 
 export function TrackingTimelinePage() {
@@ -72,9 +76,13 @@ export function TrackingTimelinePage() {
   }, [expediente]);
 
   const ultimoMovimiento = expediente?.movimientos.at(-1);
-  const selectedStatus = getEstadoVisible(ultimoMovimiento?.estado || 'enviado');
+  const selectedStatus = ultimoMovimiento?.estado === 'observado' && ultimoMovimiento.observaciones?.startsWith('[RECHAZADO]')
+    ? 'Rechazado'
+    : getEstadoVisible(ultimoMovimiento?.estado || 'enviado');
   const currentStyle = statusStyles[selectedStatus] || statusStyles.Iniciado;
-  const observacion = selectedStatus === 'Observado' ? ultimoMovimiento?.observaciones?.replace(/^\[RECHAZADO\]\s*/, '') : null;
+  const observacion = ['Observado', 'Rechazado'].includes(selectedStatus)
+    ? ultimoMovimiento?.observaciones?.replace(/^\[RECHAZADO\]\s*/, '')
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
@@ -115,7 +123,7 @@ export function TrackingTimelinePage() {
                     </div>)}
                   </div>
                 </section>
-                {selectedStatus === 'Observado' && <section className="mt-7 flex gap-4 rounded-xl border border-red-200 bg-red-50/70 p-5"><StatusIcon type="observed" className="h-7 w-7 shrink-0 text-red-700" /><div><h2 className="text-sm font-extrabold text-slate-900">Observación</h2><p className="mt-2 text-sm leading-6 text-slate-600">{observacion || 'El expediente requiere atención.'}</p></div></section>}
+                {['Observado', 'Rechazado'].includes(selectedStatus) && <section className="mt-7 flex gap-4 rounded-xl border border-red-200 bg-red-50/70 p-5"><StatusIcon type="observed" className="h-7 w-7 shrink-0 text-red-700" /><div><h2 className="text-sm font-extrabold text-slate-900">{selectedStatus === 'Rechazado' ? 'Rechazo' : 'Observación'}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{observacion || 'El expediente requiere atención.'}</p></div></section>}
               </>}
             </div>
           </article>

@@ -7,7 +7,15 @@ const estadoStyles = {
   Aprobado: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
   'En revisión': 'bg-amber-50 text-amber-700 ring-amber-600/20',
   Iniciado: 'bg-blue-50 text-blue-700 ring-blue-600/20',
-  Observado: 'bg-rose-50 text-rose-700 ring-rose-600/20'
+  Observado: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+  Rechazado: 'bg-rose-50 text-rose-700 ring-rose-600/20'
+};
+
+const estadoVisible = (estado, observaciones) => {
+  const estadoNormalizado = String(estado || '').toLowerCase();
+  if (estadoNormalizado === 'rechazado') return 'Rechazado';
+  if (estadoNormalizado === 'observado' && observaciones?.startsWith('[RECHAZADO]')) return 'Rechazado';
+  return getEstadoVisible(estado);
 };
 
 const SearchIcon = () => (
@@ -37,7 +45,7 @@ export function HistoryPage() {
       .then((expedientes) => setTramites(expedientes.map((expediente) => ({
         id: expediente.numero_expediente,
         tipo: expediente.tramite,
-        estado: getEstadoVisible(expediente.estado || 'enviado'),
+        estado: estadoVisible(expediente.estado || 'enviado', expediente.observaciones),
         fecha: expediente.fecha_registro,
       }))))
       .catch((requestError) => setError(requestError.message))
@@ -50,7 +58,7 @@ export function HistoryPage() {
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
       .map((tramite) => ({
         ...tramite,
-        estado: getEstadoVisible(tramite.estado),
+        estado: estadoVisible(tramite.estado),
         fecha: new Date(tramite.fecha).toLocaleDateString('es-PE'),
       }));
 
@@ -105,6 +113,7 @@ export function HistoryPage() {
                     <option>En revisión</option>
                     <option>Iniciado</option>
                     <option>Observado</option>
+                    <option>Rechazado</option>
                   </select>
                 </div>
               </div>

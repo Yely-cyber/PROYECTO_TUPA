@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import adminService from '../services/adminService';
 
-export const ESTADOS_EXPEDIENTE = ['Iniciado', 'En revisión', 'Aprobado', 'Observado', 'Sin movimientos'];
+export const ESTADOS_EXPEDIENTE = ['Iniciado', 'En revisión', 'Aprobado', 'Observado', 'Rechazado', 'Sin movimientos'];
 
 /**
  * Hook para listar, filtrar y revisar expedientes/solicitudes (Fig. 26 / Fig. 27).

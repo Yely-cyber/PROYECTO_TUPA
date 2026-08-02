@@ -253,8 +253,8 @@
   padding: 4px 12px; border-radius: 20px;
 }
 .admin-badge.aprobado, .admin-badge.publicado, .admin-badge.finalizado { color: var(--admin-green-600); background: var(--admin-green-100); }
-.admin-badge.pendiente, .admin-badge.en-proceso, .admin-badge.enviado { color: var(--admin-orange-600); background: var(--admin-orange-100); }
-.admin-badge.observado, .admin-badge.rechazado, .admin-badge.deshabilitado { color: var(--admin-red-600); background: var(--admin-red-100); }
+.admin-badge.pendiente, .admin-badge.en-proceso, .admin-badge.en-revision, .admin-badge.observado { color: var(--admin-orange-600); background: var(--admin-orange-100); }
+.admin-badge.rechazado, .admin-badge.deshabilitado { color: var(--admin-red-600); background: var(--admin-red-100); }
 .admin-badge.iniciado, .admin-badge.borrador, .admin-badge.recibido, .admin-badge.sin-movimientos { color: var(--admin-ink-700); background: var(--admin-line); }
 
 /* ---------- Modal ---------- */

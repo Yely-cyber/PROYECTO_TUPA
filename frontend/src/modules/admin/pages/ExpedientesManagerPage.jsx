@@ -27,8 +27,7 @@ export default function ExpedientesManagerPage() {
 		rechazar,
 	} = useExpedientes();
 
-	const puedeGestionar = (estado) => !['Aprobado', 'Rechazado'].includes(estado);
-
+	const puedeGestionar = (estado) => !['Aprobado', 'Observado', 'Rechazado'].includes(estado);
 	const columns = [
 		{ key: 'numero_expediente', header: 'N.° Expediente' },
 		{ key: 'tramite', header: 'Tipo de Trámite' },

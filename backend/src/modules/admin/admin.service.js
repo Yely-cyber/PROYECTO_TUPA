@@ -39,7 +39,7 @@ const ACCION_A_ESTADO_MOVIMIENTO = {
 function estadoParaAdmin(movimiento) {
 	if (!movimiento) return 'Sin movimientos';
 	if (movimiento.estado === 'observado' && movimiento.observaciones?.startsWith('[RECHAZADO]')) {
-		return 'Observado';
+		return 'Rechazado';
 	}
 	const labels = {
 		enviado: 'Iniciado',
@@ -47,7 +47,7 @@ function estadoParaAdmin(movimiento) {
 		en_proceso: 'En revisión',
 		finalizado: 'Aprobado',
 		observado: 'Observado',
-		rechazado: 'Observado',
+		rechazado: 'Rechazado',
 	};
 	return labels[movimiento.estado] || movimiento.estado;
 }
@@ -275,15 +275,14 @@ async function getExpedienteById(id) {
 	return { ...rows[0], estado: estadoParaAdmin(ultimo), movimientos };
 }
 
-/** Aprueba, observa o rechaza un expediente agregando un movimiento y preservando el historial. */
+/** Aprueba, observa o rechaza un expediente actualizando su ÚLTIMO movimiento existente. */
 async function actualizarEstadoExpediente(idExpediente, accion, comentario, idAdmin) {
 	if (!pool) throw createDbDependencyError();
 	const nuevoEstado = ACCION_A_ESTADO_MOVIMIENTO[accion];
 	if (!nuevoEstado) throw crearError(400, 'Acción de revisión no reconocida.');
 
 	const [movimientos] = await pool.execute(
-		`SELECT id_movimiento, dependencia_origen, dependencia_destino, usuario_responsable
-		 FROM movimientos_expediente
+		`SELECT id_movimiento FROM movimientos_expediente
 		 WHERE id_expediente = ? ORDER BY fecha_envio DESC, id_movimiento DESC LIMIT 1`,
 		[idExpediente]
 	);
@@ -300,20 +299,11 @@ async function actualizarEstadoExpediente(idExpediente, accion, comentario, idAd
 			: comentario || null;
 
 	await pool.execute(
-		`INSERT INTO movimientos_expediente
-		   (id_expediente, dependencia_origen, dependencia_destino, usuario_responsable,
-		    fecha_recepcion, estado, observaciones, id_admin)
-		 VALUES (?, ?, ?, ?, CASE WHEN ? = 'finalizado' THEN NOW() ELSE NULL END, ?, ?, ?)`,
-		[
-			idExpediente,
-			ultimo.dependencia_origen,
-			ultimo.dependencia_destino,
-			ultimo.usuario_responsable,
-			nuevoEstado,
-			nuevoEstado,
-			observacionFinal,
-			idAdmin || null,
-		]
+		`UPDATE movimientos_expediente
+		 SET estado = ?, observaciones = ?, id_admin = ?,
+		     fecha_recepcion = CASE WHEN ? = 'finalizado' OR ? = 'observar' THEN NOW() ELSE fecha_recepcion END
+		 WHERE id_movimiento = ?`,
+		[nuevoEstado, observacionFinal, idAdmin || null, nuevoEstado, accion, ultimo.id_movimiento]
 	);
 
 	return getExpedienteById(idExpediente);
