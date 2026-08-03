@@ -76,6 +76,20 @@ export const loginAdmin = async ({ email, codigoAcceso }) => {
 	return response;
 };
 
+export const lookupRegisteredUser = async ({ profile, identifier }) => {
+	const currentProfile = String(profile ?? '').trim();
+	const currentIdentifier = String(identifier ?? '').trim();
+
+	if (!currentProfile || !currentIdentifier) {
+		return { success: false, message: 'Debes indicar el tipo de usuario y el dato de acceso.' };
+	}
+
+	return requestJson('/lookup', {
+		method: 'POST',
+		body: JSON.stringify({ profile: currentProfile, identifier: currentIdentifier }),
+	});
+};
+
 export const getSession = () => readStorage(SESSION_KEY, null);
 
 export const logout = () => {

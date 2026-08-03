@@ -31,6 +31,13 @@ router.use(requireAdmin);
 router.get('/dashboard', controller.getDashboard);
 
 // ---------------------------------------------------------------------------
+// Comunicaciones / solicitudes del usuario
+// ---------------------------------------------------------------------------
+router.get('/comunicaciones', controller.listComunicaciones);
+router.get('/comunicaciones/:id', controller.getComunicacion);
+router.patch('/comunicaciones/:id/estado', controller.actualizarEstadoComunicacion);
+
+// ---------------------------------------------------------------------------
 // Trámites (catálogo TUPA)
 // ---------------------------------------------------------------------------
 router.get('/tramites', controller.listTramites);

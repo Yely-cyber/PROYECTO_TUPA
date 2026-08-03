@@ -7,6 +7,7 @@ import ExpedientesManagerPage from './pages/ExpedientesManagerPage';
 import ExpedienteReviewPage from './pages/ExpedienteReviewPage';
 import CategoriesManagerPage from './pages/CategoriesManagerPage';
 import DocumentManagerPage from './pages/DocumentManagerPage';
+import ComunicacionesAdminPage from './pages/ComunicacionesAdminPage';
 
 import { getSession } from '../auth/services/authService';
 
@@ -82,6 +83,14 @@ export const AdminRoutes = [
 		element: (
 			<RequireAdminAuth>
 				<DocumentManagerPage />
+			</RequireAdminAuth>
+		),
+	},
+	{
+		path: '/admin/comunicaciones',
+		element: (
+			<RequireAdminAuth>
+				<ComunicacionesAdminPage />
 			</RequireAdminAuth>
 		),
 	},

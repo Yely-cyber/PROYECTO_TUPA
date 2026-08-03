@@ -74,6 +74,15 @@ const adminService = {
 	rechazarExpediente: (id, comentario) =>
 		requestJson(`/expedientes/${id}/rechazar`, { method: 'PATCH', body: JSON.stringify({ comentario }) }),
 
+	// ---------- Comunicaciones ----------
+	getComunicaciones: (params = {}) => {
+		const qs = new URLSearchParams(params).toString();
+		return requestJson(`/comunicaciones${qs ? `?${qs}` : ''}`);
+	},
+	getComunicacionById: (id) => requestJson(`/comunicaciones/${id}`),
+	actualizarEstadoComunicacion: (id, estado) =>
+		requestJson(`/comunicaciones/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+
 	// ---------- Gestión documental (filesystem) ----------
 	getDocumentos: () => requestJson('/documentos'),
 	subirDocumento: (file) => {

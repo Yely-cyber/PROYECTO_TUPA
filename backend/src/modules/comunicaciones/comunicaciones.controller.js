@@ -2,7 +2,10 @@ const comunicacionesService = require('./comunicaciones.service');
 
 const registrarComunicacion = async (req, res) => {
 	try {
-		const comunicacion = await comunicacionesService.registrarComunicacion(req.body);
+		const comunicacion = await comunicacionesService.registrarComunicacion({
+			...(req.body || {}),
+			archivos: req.files || [],
+		});
 		return res.status(201).json({
 			success: true,
 			message: 'Comunicación registrada correctamente.',

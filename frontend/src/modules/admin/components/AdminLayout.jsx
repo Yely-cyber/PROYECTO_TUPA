@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { to: "/admin/expedientes", label: "Expedientes y Solicitudes", icon: FolderOpen },
   { to: "/admin/categorias", label: "Categorías", icon: Tags },
   { to: "/admin/documentos", label: "Gestión Documental", icon: FileArchive },
+  { to: "/admin/comunicaciones", label: "Comunicaciones", icon: Bell },
 ];
 
 /**
