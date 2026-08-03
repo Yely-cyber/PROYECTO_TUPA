@@ -83,14 +83,14 @@ export const TramitesConfirmationPage = () => {
   const confirmation = {
     user: {
       fullName: solicitud.usuarioNombre || 'No registrado',
-      code: 'No registrado',
+      code: solicitud.usuarioCodigo || 'No registrado',
       userType: solicitud.usuarioPerfil || 'No registrado',
-      institutionalEmail: 'No registrado',
+      institutionalEmail: solicitud.usuarioEmail || 'No registrado',
     },
     procedure: {
       type: solicitud.tramiteNombre,
       description: solicitud.tramiteCategoria,
-      cost: 'No registrado',
+      cost: solicitud.costoLabel || 'No registrado',
       estimatedTime: solicitud.tiempoEstimado,
     },
     request: solicitud.peticion,

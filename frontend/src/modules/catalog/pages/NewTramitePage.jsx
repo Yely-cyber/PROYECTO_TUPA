@@ -91,8 +91,11 @@ export const NewTramitePage = () => {
 				tramiteCategoria: tramite.categoria,
 				tramiteIcon: tramite.icon,
 				tiempoEstimado: tramite.tiempoEstimado,
+				costoLabel: tramite.costoLabel,
 				peticion: form.peticion,
 				codigoPago: form.codigoPago,
+				usuarioEmail: user.email || null,
+				usuarioCodigo: user.codigo || null,
 				archivos: form.archivos.map(({ file }) => ({
 					nombre: file.name,
 					tamano: file.size,
@@ -102,8 +105,7 @@ export const NewTramitePage = () => {
 				usuarioPerfil: user.profile,
 				numeroExpediente: expediente.numeroExpediente,
 				expedienteId: expediente.id,
-				estado: expediente.estado === 'iniciado' ? 'Iniciado' : expediente.estado,
-				fechaCreacion: expediente.fechaCreacion,
+				estado: expediente.estado === 'enviado' ? 'Iniciado' : expediente.estado,
 			});
 
 			if (solicitud) {

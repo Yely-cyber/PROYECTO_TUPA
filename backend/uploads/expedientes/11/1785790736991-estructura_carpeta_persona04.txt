@@ -1,0 +1,38 @@
+frontend/src/modules/admin/
+│
+├── components/                       <-- Componentes reutilizables SOLO de administración
+│   ├── AdminLayout.jsx               <-- Layout con sidebar administrativo y barra superior de perfil
+│   ├── TramiteReviewModal.jsx        <-- Modal clave: Revisión/Aprobación/Observación de expediente
+│   ├── TramiteEditModal.jsx          <-- Modal para crear o editar la definición de un trámite TUPA
+│   ├── CategoryFormModal.jsx         <-- Modal para crear/editar categorías de trámites
+│   ├── ExpedienteStatusBadge.jsx     <-- Componente visual para badges (Aprobado, Pendiente, Observado)
+│   ├── AdminDataTable.jsx            <-- Tabla reutilizable con paginación, filtros y ordenamiento
+│   └── AdminMetricsCards.jsx         <-- Tarjetas de métricas para el Dashboard (Total trámites, pendientes, etc.)
+│
+├── data/                             <-- Mocks para probar la interfaz sin esperar la API
+│   ├── mockExpedientes.js            <-- Lista de solicitudes recibidas para revisión
+│   ├── mockTramitesAdmin.js          <-- Configuración de trámites TUPA creados
+│   └── mockAdminMetrics.js           <-- Datos de prueba para gráficos y tarjetas del Dashboard
+│
+├── hooks/                            <-- Lógica de negocio y manejo de estado de tablas/modales
+│   ├── useExpedientes.js             <-- Hook para listar, filtrar, aprobar o rechazar expedientes
+│   ├── useTramitesManager.js         <-- Hook para el CRUD de trámites (crear, editar, deshabilitar)
+│   └── useCategories.js              <-- Hook para la gestión de categorías
+│
+├── pages/                            <-- Páginas principales (Las 7 Interfaces a cargo)
+│   ├── AdminDashboardPage.jsx        <-- Fig 23: Dashboard Administrativo del Sistema
+│   ├── TramitesManagerPage.jsx       <-- Fig 24: Gestión de Trámites (Tabla general TUPA)
+│   ├── TramiteCreateEditPage.jsx     <-- Fig 25: Vista/Modal de Registro y Edición de Trámites
+│   ├── ExpedientesManagerPage.jsx    <-- Fig 26: Gestión de Expedientes (Solicitudes recibidas)
+│   ├── ExpedienteReviewPage.jsx      <-- Fig 27: Vista/Modal de Revisión de Expedientes
+│   ├── CategoriesManagerPage.jsx     <-- Fig 28: Gestión de Categorías
+│   └── DocumentManagerPage.jsx       <-- Fig 29: Gestión Documental
+│
+├── services/                         <-- Comunicación HTTP exclusiva del panel de administración
+│   └── adminService.js               <-- Peticiones Axios (/api/admin/tramites, /api/admin/expedientes, etc.)
+│
+├── utils/                            <-- Funciones auxiliares para administración
+│   └── adminHelpers.js               <-- Formateadores de estados, exportación a Excel/PDF, etc.
+│
+├── index.js                          <-- Archivo de exportación pública (Barrel File)
+└── admin.routes.jsx                  <-- Definición local de rutas para este módulo

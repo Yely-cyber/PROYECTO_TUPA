@@ -159,6 +159,8 @@ CREATE TABLE IF NOT EXISTS tramites (
   nombre VARCHAR(255) NOT NULL,
   descripcion TEXT,
   categoria VARCHAR(100),
+  perfil_objetivo ENUM('estudiante','docente','administrativo','institucional','general','externo')
+    NOT NULL DEFAULT 'estudiante' COMMENT 'Perfil de usuario al que le corresponde el trámite (ver usuarios.tipo_usuario)',
   costo DECIMAL(10,2) NOT NULL DEFAULT 0,
   id_dependencia_destino INT NOT NULL,
   tiempo INT COMMENT 'Tiempo estimado en días',

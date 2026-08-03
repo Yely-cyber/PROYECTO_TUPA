@@ -98,18 +98,54 @@ INSERT INTO datos_general (id_usuario, dni) VALUES
 
 -- ---------------------------------------------------------------------
 -- tramites (catálogo TUPA)
+-- categoria/perfil_objetivo siguen la taxonomía definida para el
+-- catálogo de "Nuevo Trámite" del frontend (módulo catalog).
 -- ---------------------------------------------------------------------
-INSERT INTO tramites (id_tramite, codigo_tupa, nombre, descripcion, categoria, costo, id_dependencia_destino, tiempo, id_admin) VALUES
-  (1, 'TUPA-001', 'Certificado de Estudios', 'Documento que certifica los estudios realizados por el solicitante.', 'Académico', 15.00, 6, 3, 1),
-  (2, 'TUPA-002', 'Carnet Universitario', 'Emisión o duplicado del carnet de identificación como estudiante.', 'Administrativo', 10.00, 3, 5, 1),
-  (3, 'TUPA-003', 'Grados y Títulos', 'Trámite para la obtención del grado académico o título profesional.', 'Grados y Títulos', 250.00, 4, 30, 1),
-  (4, 'TUPA-004', 'Constancia de Matrícula', 'Constancia que acredita la matrícula vigente del estudiante.', 'Académico', 5.00, 6, 1, 1),
-  (5, 'TUPA-005', 'Rectificación de Nota', 'Corrección de una nota registrada incorrectamente en el sistema académico.', 'Académico', 8.00, 6, 5, 1),
-  (6, 'TUPA-006', 'Constancia de Egresado', 'Constancia que acredita haber concluido el plan de estudios.', 'Académico', 12.00, 6, 3, 1),
-  (7, 'TUPA-007', 'Matrícula Extemporánea', 'Autorización de matrícula fuera del cronograma regular.', 'Administrativo', 20.00, 2, 5, 1),
-  (8, 'TUPA-008', 'Solicitud de Beca', 'Postulación a los programas de becas y apoyo socioeconómico.', 'Administrativo', 0.00, 5, 15, 1),
-  (9, 'TUPA-009', 'Traslado Interno', 'Cambio de escuela profesional dentro de la misma universidad.', 'Administrativo', 30.00, 2, 20, 1),
-  (10, 'TUPA-010', 'Duplicado de Carnet Universitario', 'Emisión de un duplicado por pérdida o deterioro del carnet.', 'Administrativo', 10.00, 3, 5, 1);
+INSERT INTO tramites (id_tramite, codigo_tupa, nombre, descripcion, categoria, perfil_objetivo, costo, id_dependencia_destino, tiempo, id_admin) VALUES
+  (1, 'TUPA-001', 'Certificado de Estudios', 'Documento que certifica los estudios realizados por el solicitante.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'estudiante', 15.00, 6, 3, 1),
+  (2, 'TUPA-002', 'Carnet Universitario', 'Emisión o duplicado del carnet de identificación como estudiante.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'estudiante', 10.00, 3, 5, 1),
+  (3, 'TUPA-003', 'Grados y Títulos', 'Trámite para la obtención del grado académico o título profesional.', 'FACULTADES ESTUDIANTES', 'estudiante', 250.00, 4, 30, 1),
+  (4, 'TUPA-004', 'Constancia de Matrícula', 'Constancia que acredita la matrícula vigente del estudiante.', 'FACULTADES ESTUDIANTES', 'estudiante', 5.00, 6, 1, 1),
+  (5, 'TUPA-005', 'Rectificación de Nota', 'Corrección de una nota registrada incorrectamente en el sistema académico.', 'FACULTADES ESTUDIANTES', 'estudiante', 8.00, 6, 5, 1),
+  (6, 'TUPA-006', 'Constancia de Egresado', 'Constancia que acredita haber concluido el plan de estudios.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'estudiante', 12.00, 6, 3, 1),
+  (7, 'TUPA-007', 'Matrícula Extemporánea', 'Autorización de matrícula fuera del cronograma regular.', 'FACULTADES ESTUDIANTES', 'estudiante', 20.00, 2, 5, 1),
+  (8, 'TUPA-008', 'Solicitud de Beca', 'Postulación a los programas de becas y apoyo socioeconómico.', 'DIRECCIÓN DE BIENESTAR UNIVERSITARIO', 'estudiante', 0.00, 5, 15, 1),
+  (9, 'TUPA-009', 'Traslado Interno', 'Cambio de escuela profesional dentro de la misma universidad.', 'FACULTADES ESTUDIANTES', 'estudiante', 30.00, 2, 20, 1),
+  (10, 'TUPA-010', 'Duplicado de Carnet Universitario', 'Emisión de un duplicado por pérdida o deterioro del carnet.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'estudiante', 10.00, 3, 5, 1),
+
+  -- Estudiante (categorías adicionales)
+  (11, 'TUPA-011', 'Constancia de Estudios de Posgrado', 'Certifica los estudios de maestría o doctorado cursados.', 'ESCUELA DE POSTGRADO ESTUDIANTES', 'estudiante', 20.00, 6, 5, 1),
+  (12, 'TUPA-012', 'Carné de Biblioteca', 'Emisión del carné para acceder a los servicios de biblioteca.', 'UNIDAD DE BIBLIOTECA ESTUDIANTES', 'estudiante', 5.00, 6, 2, 1),
+  (13, 'TUPA-013', 'Certificado de Competencias Digitales', 'Acredita el nivel de manejo de herramientas ofimáticas.', 'CENTRO DE CÓMPUTO', 'estudiante', 8.00, 6, 5, 1),
+  (14, 'TUPA-014', 'Constancia de Nivel de Idioma', 'Certifica el nivel alcanzado en un idioma extranjero.', 'INSTITUTO DE IDIOMAS', 'estudiante', 10.00, 6, 3, 1),
+
+  -- Docente
+  (15, 'TUPA-015', 'Carné de Biblioteca para Docentes', 'Emisión del carné de biblioteca para personal docente y administrativo.', 'UNIDAD DE BIBLIOTECA DOCENTES Y ADMINISTRATIVOS', 'docente', 5.00, 6, 2, 1),
+  (16, 'TUPA-016', 'Certificado de Capacitación en TIC', 'Constancia de participación en talleres de tecnología.', 'CENTRO DE CÓMPUTO', 'docente', 8.00, 6, 5, 1),
+  (17, 'TUPA-017', 'Licencia con Goce de Haber', 'Solicitud de licencia laboral remunerada para personal docente.', 'DIRECCIÓN DE BIENESTAR UNIVERSITARIO', 'docente', 0.00, 5, 7, 1),
+  (18, 'TUPA-018', 'Constancia de Trabajo', 'Documento que certifica el vínculo laboral vigente con la universidad.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'docente', 5.00, 6, 2, 1),
+  (19, 'TUPA-019', 'Certificado de Nivel de Idioma para Docentes', 'Certifica el nivel alcanzado en un idioma extranjero.', 'INSTITUTO DE IDIOMAS', 'docente', 10.00, 6, 3, 1),
+
+  -- Dependencia (tipo_usuario = administrativo)
+  (20, 'TUPA-020', 'Solicitud de Presupuesto', 'Requerimiento de asignación presupuestal para una dependencia.', 'RECTORADO - SECRETARIA GENERAL', 'administrativo', 0.00, 3, 15, 1),
+  (21, 'TUPA-021', 'Soporte Técnico Institucional', 'Solicitud de asistencia técnica de equipos o sistemas.', 'CENTRO DE CÓMPUTO', 'administrativo', 0.00, 6, 3, 1),
+  (22, 'TUPA-022', 'Reporte Académico Institucional', 'Solicitud de reportes o estadísticas académicas para gestión interna.', 'DIRECCIÓN DE REGISTRO Y SERVICIOS ACADÉMICOS', 'administrativo', 0.00, 6, 5, 1),
+
+  -- Institución (tipo_usuario = institucional)
+  (23, 'TUPA-023', 'Convenio Marco Interinstitucional', 'Formalización de un convenio de cooperación con la universidad.', 'RECTORADO - SECRETARIA GENERAL', 'institucional', 0.00, 3, 25, 1),
+  (24, 'TUPA-024', 'Autorización de Uso de Espacios', 'Permiso para el uso de auditorios o ambientes institucionales.', 'FACULTADES OTROS', 'institucional', 50.00, 3, 5, 1),
+
+  -- Público General
+  (25, 'TUPA-025', 'Constancia de Postulante', 'Certifica la participación en un proceso de admisión.', 'DIRECCIÓN GENERAL DE ADMISIÓN', 'general', 15.00, 2, 3, 1),
+  (26, 'TUPA-026', 'Admisión a Programa de Posgrado', 'Postulación a maestrías o doctorados para personas externas a la universidad.', 'ESCUELA DE POSTGRADO ADMISIÓN Y TRASLADO EXTERNO', 'general', 300.00, 2, 15, 1),
+  (27, 'TUPA-027', 'Solicitud de Información Pública', 'Acceso a información pública en el marco de la ley de transparencia.', 'FACULTADES OTROS', 'general', 0.00, 3, 7, 1),
+  (28, 'TUPA-028', 'Inscripción al Residentado Médico', 'Postulación al programa de residentado médico.', 'RESIDENTADO MEDICO', 'general', 350.00, 2, 20, 1),
+  (29, 'TUPA-029', 'Inscripción a Curso de Idiomas Extracurricular', 'Matrícula en cursos de idiomas abiertos al público general.', 'INSTITUTO DE IDIOMAS', 'general', 80.00, 6, 3, 1),
+  (30, 'TUPA-030', 'Inscripción a Curso de Ofimática', 'Matrícula en cursos de cómputo abiertos al público general.', 'CENTRO DE CÓMPUTO', 'general', 60.00, 6, 3, 1),
+
+  -- Usuario Externo
+  (31, 'TUPA-031', 'Acceso a Archivo Histórico', 'Consulta o reproducción de documentos del archivo institucional.', 'RECTORADO - SECRETARIA GENERAL', 'externo', 15.00, 3, 10, 1),
+  (32, 'TUPA-032', 'Constancia para Terceros', 'Documento oficial solicitado por una persona ajena a la universidad.', 'FACULTADES OTROS', 'externo', 15.00, 3, 5, 1);
 
 -- ---------------------------------------------------------------------
 -- requisitos_tramite
