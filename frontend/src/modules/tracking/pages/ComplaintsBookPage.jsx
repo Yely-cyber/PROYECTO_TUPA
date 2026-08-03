@@ -1,6 +1,25 @@
 const fieldStyles =
   'mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#9d2449] focus:ring-3 focus:ring-[#9d2449]/10';
 
+const buildComunicacionPayload = (formData) => {
+  const payload = new FormData();
+  payload.append('categoria', formData.get('tipoSolicitud'));
+  payload.append('nombreCompleto', formData.get('nombres'));
+  payload.append('correo', formData.get('correo'));
+  payload.append('telefono', formData.get('telefono'));
+  payload.append('servicioRelacionado', formData.get('servicioRelacionado'));
+  payload.append('mensaje', formData.get('detalle'));
+
+  const archivos = formData.getAll('archivos');
+  archivos.forEach((archivo) => {
+    if (archivo && archivo.name) {
+      payload.append('archivos', archivo);
+    }
+  });
+
+  return payload;
+};
+
 export function ComplaintsBookPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -8,14 +27,7 @@ export function ComplaintsBookPage() {
     const data = new FormData(form);
 
     try {
-      await registrarComunicacion({
-        categoria: data.get('tipoSolicitud'),
-        nombreCompleto: data.get('nombres'),
-        correo: data.get('correo'),
-        telefono: data.get('telefono'),
-        servicioRelacionado: data.get('servicioRelacionado'),
-        mensaje: data.get('detalle'),
-      });
+      await registrarComunicacion(buildComunicacionPayload(data));
       form.reset();
       window.alert('Comunicación registrada correctamente.');
     } catch (error) {
@@ -95,6 +107,11 @@ export function ComplaintsBookPage() {
                     placeholder="Describe detalladamente tu reclamo o queja..."
                     className={`${fieldStyles} h-auto min-h-36 resize-y py-3`}
                   />
+                </label>
+
+                <label className="text-sm font-bold text-slate-700 md:col-span-2">
+                  Archivos adjuntos
+                  <input name="archivos" type="file" multiple className={`${fieldStyles} h-auto px-3 py-2`} />
                 </label>
               </div>
 

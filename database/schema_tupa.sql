@@ -291,10 +291,21 @@ CREATE TABLE IF NOT EXISTS comunicaciones (
   fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ---------------------------------------------------------------------
+-- Tabla: comunicaciones_adjuntos
+-- Adjuntos asociados a cada comunicación.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS comunicaciones_adjuntos (
+  id_adjunto INT AUTO_INCREMENT PRIMARY KEY,
+  id_comunicacion INT NOT NULL,
+  nombre_archivo VARCHAR(255) NOT NULL,
+  ruta_archivo VARCHAR(500) NOT NULL,
+  tipo_mime VARCHAR(120),
+  tamano_bytes INT NOT NULL DEFAULT 0,
+  creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_comunicacion) REFERENCES comunicaciones(id_comunicacion)
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO administradores (nombre_admin, email, codigo_acceso, telefono, estado, ultimo_acceso, fecha_creacion)
-VALUES ('Administrador Principal', 'admin@localhost', '123456', NULL, 'activo', NULL, NOW())
-ON DUPLICATE KEY UPDATE
-  codigo_acceso = VALUES(codigo_acceso),
-  estado = 'activo';

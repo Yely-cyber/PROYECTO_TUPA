@@ -94,6 +94,15 @@ const perfilPorTipoUsuario = {
 	externo: 'externo',
 };
 
+const tipoUsuarioPorPerfil = {
+	estudiante: 'estudiante',
+	docente: 'docente',
+	dependencia: 'administrativo',
+	institucion: 'institucional',
+	general: 'general',
+	externo: 'externo',
+};
+
 const crearError = (statusCode, message, errors = null) => {
 	const error = new Error(message);
 	error.statusCode = statusCode;
@@ -493,12 +502,101 @@ const iniciarSesionAdministrador = async ({ email, codigoAcceso }) => {
 	};
 };
 
+const buscarUsuarioPorPerfil = async ({ profile, identifier }) => {
+	const profileKey = normalizarPerfil(profile);
+	const valor = normalizarTexto(identifier);
+
+	if (!valor) {
+		throw crearError(400, 'Debes ingresar el código o documento correspondiente.');
+	}
+
+	const tipoUsuario = tipoUsuarioPorPerfil[profileKey];
+	if (!tipoUsuario) {
+		throw crearError(400, 'Perfil no válido.');
+	}
+
+	let query = '';
+	let params = [];
+
+	if (profileKey === 'estudiante') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion, d.codigo_estudiante
+			FROM usuarios u
+			INNER JOIN datos_estudiante d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(d.codigo_estudiante) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	} else if (profileKey === 'docente') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion, d.dni
+			FROM usuarios u
+			INNER JOIN datos_docente d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(d.dni) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	} else if (profileKey === 'dependencia') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion
+			FROM usuarios u
+			INNER JOIN datos_administrativo d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(u.nombre_completo) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	} else if (profileKey === 'institucion') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion, d.ruc
+			FROM usuarios u
+			INNER JOIN datos_institucional d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(d.ruc) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	} else if (profileKey === 'general') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion, d.dni
+			FROM usuarios u
+			INNER JOIN datos_general d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(d.dni) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	} else if (profileKey === 'externo') {
+		query = `SELECT u.id_usuario, u.tipo_usuario, u.nombre_completo, u.email, u.telefono, u.direccion, d.documento
+			FROM usuarios u
+			INNER JOIN datos_externo d ON d.id_usuario = u.id_usuario
+			WHERE LOWER(d.documento) = LOWER(?)
+			LIMIT 1`;
+		params = [valor];
+	}
+
+	const [rows] = await pool.execute(query, params);
+	const usuario = rows[0] || null;
+
+	if (!usuario) {
+		throw crearError(404, 'No se encontró un usuario registrado con ese dato.');
+	}
+
+	const user = {
+		id: usuario.id_usuario,
+		profile: profileKey,
+		name: usuario.nombre_completo,
+		nombre_completo: usuario.nombre_completo,
+		nombres: usuario.nombre_completo,
+		entidad: usuario.nombre_completo,
+		dependencia: usuario.nombre_completo,
+		email: usuario.email,
+		telefono: usuario.telefono,
+		direccion: usuario.direccion,
+		codigo: usuario.codigo_estudiante || null,
+		dni: usuario.dni || null,
+		ruc: usuario.ruc || null,
+		documento: usuario.documento || null,
+		tipoUsuario,
+	};
+
+	return { user };
+};
+
 module.exports = {
 	obtenerPerfilesAutenticacion,
 	guardarPasoRegistro,
 	completarRegistro,
 	obtenerRegistroPorId,
 	iniciarSesionAdministrador,
+	buscarUsuarioPorPerfil,
 	validarCargaPerfil,
 	normalizarPerfil,
 	crearError,

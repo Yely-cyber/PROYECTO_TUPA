@@ -10,7 +10,7 @@ const iconStyles = {
 	slate: 'bg-slate-200 text-slate-700',
 };
 
-export const ProfileCard = ({ title, description, href, icon, tone = 'slate' }) => {
+export const ProfileCard = ({ title, description, href, icon, tone = 'slate', onAlreadyRegistered }) => {
 	return (
 		<div className={`group rounded-2xl border p-5 shadow-sm transition duration-200 ${toneStyles[tone] ?? toneStyles.slate}`}>
 			<div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl text-xl ${iconStyles[tone] ?? iconStyles.slate}`}>
@@ -20,12 +20,21 @@ export const ProfileCard = ({ title, description, href, icon, tone = 'slate' }) 
 			<h3 className="text-lg font-semibold text-slate-900">{title}</h3>
 			<p className="mt-2 min-h-[3.5rem] text-sm leading-6 text-slate-600">{description}</p>
 
-			<a
-				href={href}
-				className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-[#be1e2d] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#a71825]"
-			>
-				Acceder <span className="ml-2 transition-transform group-hover:translate-x-0.5">→</span>
-			</a>
+			<div className="mt-6 flex flex-col gap-2">
+				<a
+					href={href}
+					className="inline-flex w-full items-center justify-center rounded-lg bg-[#be1e2d] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#a71825]"
+				>
+					Registrar nuevo <span className="ml-2 transition-transform group-hover:translate-x-0.5">→</span>
+				</a>
+				<button
+					type="button"
+					onClick={onAlreadyRegistered}
+					className="inline-flex w-full items-center justify-center rounded-lg border border-[#e7d8d0] bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#be1e2d] hover:text-[#be1e2d]"
+				>
+					Ya me registré
+				</button>
+			</div>
 		</div>
 	);
 };

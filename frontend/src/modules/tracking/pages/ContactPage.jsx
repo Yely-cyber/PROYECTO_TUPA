@@ -28,6 +28,24 @@ const MAP_PREVIEW = `data:image/svg+xml,${encodeURIComponent(`
 const fieldStyles =
   'mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#9d2449] focus:ring-3 focus:ring-[#9d2449]/10';
 
+const buildComunicacionPayload = (formData) => {
+  const payload = new FormData();
+  payload.append('categoria', 'Ayuda');
+  payload.append('nombreCompleto', formData.get('nombre'));
+  payload.append('correo', formData.get('correo'));
+  payload.append('asunto', formData.get('asunto'));
+  payload.append('mensaje', formData.get('mensaje'));
+
+  const archivos = formData.getAll('archivos');
+  archivos.forEach((archivo) => {
+    if (archivo && archivo.name) {
+      payload.append('archivos', archivo);
+    }
+  });
+
+  return payload;
+};
+
 const InfoIcon = ({ type }) => {
   const paths = {
     address: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></>,
@@ -49,13 +67,7 @@ export function ContactPage() {
     const data = new FormData(form);
 
     try {
-      await registrarComunicacion({
-        categoria: 'Ayuda',
-        nombreCompleto: data.get('nombre'),
-        correo: data.get('correo'),
-        asunto: data.get('asunto'),
-        mensaje: data.get('mensaje'),
-      });
+      await registrarComunicacion(buildComunicacionPayload(data));
       form.reset();
       window.alert('Comunicación registrada correctamente.');
     } catch (error) {
@@ -101,6 +113,11 @@ export function ContactPage() {
                     placeholder="Escribe tu mensaje aquí..."
                     className={`${fieldStyles} h-auto min-h-36 resize-y py-3`}
                   />
+                </label>
+
+                <label className="text-sm font-bold text-slate-700 md:col-span-2">
+                  Archivos adjuntos
+                  <input name="archivos" type="file" multiple className={`${fieldStyles} h-auto px-3 py-2`} />
                 </label>
               </div>
               <div className="mt-7 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">

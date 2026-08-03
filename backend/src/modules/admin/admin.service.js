@@ -10,6 +10,8 @@
  */
 const pool = require('../../config/db'); // <-- cambia la ruta si tu pool vive en otro archivo
 
+const ESTADOS_COMUNICACIONES = ['pendiente', 'en_proceso', 'resuelto', 'cerrado'];
+
 // ---------------------------------------------------------------------------
 // Helpers (mismo estilo que tu authService.js)
 // ---------------------------------------------------------------------------
@@ -22,6 +24,21 @@ const crearError = (status, message) => {
 };
 
 const createDbDependencyError = () => crearError(500, 'No hay conexión configurada con la base de datos.');
+
+async function asegurarTablaComunicaciones() {
+	await pool.execute(`
+		CREATE TABLE IF NOT EXISTS comunicaciones_adjuntos (
+			id_adjunto INT AUTO_INCREMENT PRIMARY KEY,
+			id_comunicacion INT NOT NULL,
+			nombre_archivo VARCHAR(255) NOT NULL,
+			ruta_archivo VARCHAR(500) NOT NULL,
+			tipo_mime VARCHAR(120),
+			tamano_bytes INT NOT NULL DEFAULT 0,
+			creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (id_comunicacion) REFERENCES comunicaciones(id_comunicacion) ON DELETE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+	`);
+}
 
 // Mapea el estado de negocio (lo que ve el admin) al ENUM real de
 // movimientos_expediente: enviado | recibido | en_proceso | finalizado | observado
@@ -351,6 +368,129 @@ async function getDashboardMetrics() {
 	};
 }
 
+async function getAdjuntosComunicacion(idComunicacion) {
+	const [rows] = await pool.execute(
+		`SELECT id_adjunto, nombre_archivo, ruta_archivo, tipo_mime, tamano_bytes, creado_en
+		 FROM comunicaciones_adjuntos
+		 WHERE id_comunicacion = ?
+		 ORDER BY creado_en ASC, id_adjunto ASC`,
+		[idComunicacion],
+	);
+
+	return rows.map((row) => ({
+		id: row.id_adjunto,
+		nombreArchivo: row.nombre_archivo,
+		rutaArchivo: row.ruta_archivo,
+		tipoMime: row.tipo_mime,
+		tamanoBytes: row.tamano_bytes,
+		creadoEn: row.creado_en,
+	}));
+}
+
+async function getComunicaciones({ categoria, estado, search } = {}) {
+	if (!pool) throw createDbDependencyError();
+	await asegurarTablaComunicaciones();
+
+	const condiciones = [];
+	const params = [];
+
+	if (categoria) {
+		condiciones.push('c.categoria = ?');
+		params.push(normalizarTexto(categoria));
+	}
+
+	if (estado) {
+		condiciones.push('c.estado = ?');
+		params.push(normalizarTexto(estado));
+	}
+
+	if (search) {
+		const termino = `%${normalizarTexto(search)}%`;
+		condiciones.push('(c.nombre_completo LIKE ? OR c.correo LIKE ? OR c.asunto LIKE ? OR c.mensaje LIKE ?)');
+		params.push(termino, termino, termino, termino);
+	}
+
+	const whereClause = condiciones.length > 0 ? `WHERE ${condiciones.join(' AND ')}` : '';
+	const [rows] = await pool.execute(
+		`SELECT c.id_comunicacion, c.categoria, c.nombre_completo, c.correo, c.telefono,
+		        c.servicio_relacionado, c.asunto, c.mensaje, c.estado, c.fecha_registro
+		 FROM comunicaciones c
+		 ${whereClause}
+		 ORDER BY c.fecha_registro DESC, c.id_comunicacion DESC`,
+		params,
+	);
+
+	return Promise.all(
+		rows.map(async (row) => ({
+			id: row.id_comunicacion,
+			categoria: row.categoria,
+			nombreCompleto: row.nombre_completo,
+			correo: row.correo,
+			telefono: row.telefono,
+			servicioRelacionado: row.servicio_relacionado,
+			asunto: row.asunto,
+			mensaje: row.mensaje,
+			estado: row.estado,
+			fechaRegistro: row.fecha_registro,
+			archivos: await getAdjuntosComunicacion(row.id_comunicacion),
+		})),
+	);
+}
+
+async function getComunicacionById(id) {
+	if (!pool) throw createDbDependencyError();
+	await asegurarTablaComunicaciones();
+
+	const [rows] = await pool.execute(
+		`SELECT id_comunicacion, categoria, nombre_completo, correo, telefono,
+		        servicio_relacionado, asunto, mensaje, estado, fecha_registro
+		 FROM comunicaciones
+		 WHERE id_comunicacion = ?
+		 LIMIT 1`,
+		[id],
+	);
+
+	if (!rows[0]) {
+		throw crearError(404, 'Comunicación no encontrada.');
+	}
+
+	const row = rows[0];
+	return {
+		id: row.id_comunicacion,
+		categoria: row.categoria,
+		nombreCompleto: row.nombre_completo,
+		correo: row.correo,
+		telefono: row.telefono,
+		servicioRelacionado: row.servicio_relacionado,
+		asunto: row.asunto,
+		mensaje: row.mensaje,
+		estado: row.estado,
+		fechaRegistro: row.fecha_registro,
+		archivos: await getAdjuntosComunicacion(row.id_comunicacion),
+	};
+}
+
+async function actualizarEstadoComunicacion(id, estado) {
+	if (!pool) throw createDbDependencyError();
+	await asegurarTablaComunicaciones();
+
+	const estadoNormalizado = normalizarTexto(estado).toLowerCase();
+	if (!ESTADOS_COMUNICACIONES.includes(estadoNormalizado)) {
+		throw crearError(400, 'Estado no válido.');
+	}
+
+	const [result] = await pool.execute(
+		'UPDATE comunicaciones SET estado = ? WHERE id_comunicacion = ?',
+		[estadoNormalizado, id],
+	);
+
+	if (result.affectedRows === 0) {
+		throw crearError(404, 'Comunicación no encontrada.');
+	}
+
+	return getComunicacionById(id);
+}
+
 // ---------------------------------------------------------------------------
 // Gestión Documental — SIN tabla propia: se maneja por filesystem
 // ---------------------------------------------------------------------------
@@ -420,6 +560,9 @@ module.exports = {
 	aprobarExpediente,
 	observarExpediente,
 	rechazarExpediente,
+	getComunicaciones,
+	getComunicacionById,
+	actualizarEstadoComunicacion,
 	getDashboardMetrics,
 	getDocumentos,
 	guardarDocumento,

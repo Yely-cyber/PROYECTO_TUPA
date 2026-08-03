@@ -71,10 +71,25 @@ const iniciarSesionAdministrador = async (req, res) => {
 	}
 };
 
+const buscarUsuarioPorPerfil = async (req, res) => {
+	try {
+		const result = await authService.buscarUsuarioPorPerfil(req.body || {});
+
+		return res.status(200).json({
+			success: true,
+			message: 'Usuario encontrado.',
+			user: result.user,
+		});
+	} catch (error) {
+		return enviarError(res, error);
+	}
+};
+
 module.exports = {
 	obtenerPerfiles,
 	guardarPasoRegistro,
 	completarRegistro,
 	obtenerRegistroPorId,
 	iniciarSesionAdministrador,
+	buscarUsuarioPorPerfil,
 };

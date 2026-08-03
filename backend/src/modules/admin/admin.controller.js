@@ -25,6 +25,22 @@ const getDashboard = asyncHandler(async (req, res) => {
 	res.status(200).json({ success: true, data });
 });
 
+const listComunicaciones = asyncHandler(async (req, res) => {
+	const { categoria, estado, search } = req.query;
+	const data = await adminService.getComunicaciones({ categoria, estado, search });
+	res.status(200).json({ success: true, data });
+});
+
+const getComunicacion = asyncHandler(async (req, res) => {
+	const data = await adminService.getComunicacionById(req.params.id);
+	res.status(200).json({ success: true, data });
+});
+
+const actualizarEstadoComunicacion = asyncHandler(async (req, res) => {
+	const data = await adminService.actualizarEstadoComunicacion(req.params.id, req.body.estado);
+	res.status(200).json({ success: true, message: 'Estado actualizado correctamente.', data });
+});
+
 // ---------------------------------------------------------------------------
 // Trámites
 // ---------------------------------------------------------------------------
@@ -127,6 +143,9 @@ const descargarDocumento = asyncHandler(async (req, res) => {
 
 module.exports = {
 	getDashboard,
+	listComunicaciones,
+	getComunicacion,
+	actualizarEstadoComunicacion,
 	listTramites,
 	getTramite,
 	createTramite,

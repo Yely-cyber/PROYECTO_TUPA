@@ -222,4 +222,22 @@ INSERT INTO registro_formularios (perfil, estado, paso_actual, datos_json, cread
    JSON_OBJECT('nombreCompleto', 'Pedro Salinas Loayza', 'email', 'psalinas@gmail.com', 'documento', '70123456'),
    '2026-07-18 09:00:00', '2026-07-18 09:15:00', '2026-07-18 09:15:00');
 
+-- ---------------------------------------------------------------------
+-- comunicaciones
+-- Reclamos, consultas y solicitudes de ayuda para el panel admin.
+-- ---------------------------------------------------------------------
+INSERT INTO comunicaciones (id_comunicacion, categoria, nombre_completo, correo, telefono, servicio_relacionado, asunto, mensaje, estado, fecha_registro) VALUES
+  (1, 'Reclamo', 'María Torres Quispe', 'mtorres@est.unsaac.edu.pe', '984100002', 'Trámite Académico', 'Demora en atención de trámite', 'Mi expediente lleva varios días sin respuesta y necesito revisar el estado de atención.', 'pendiente', '2026-07-26 08:40:00'),
+  (2, 'Consulta', 'Katherine Zúñiga Rojas', 'kzuniga@unsaac.edu.pe', '984100007', 'Trámite Administrativo', 'Consulta sobre requisitos', 'Necesito confirmar qué documentos son necesarios para un trámite interno de mi dependencia.', 'en_proceso', '2026-07-26 11:15:00'),
+  (3, 'Ayuda', 'Diego Salazar Ttito', 'dsalazar@gmail.com', '984100009', 'Otro', 'No puedo ingresar al portal', 'Al intentar acceder al portal aparece un error y no carga el dashboard.', 'resuelto', '2026-07-25 16:20:00'),
+  (4, 'Reclamo', 'Katia Ochoa Villena', 'kochoa@gmail.com', NULL, 'Trámite Académico', 'Cobro no esperado', 'El monto mostrado al iniciar el trámite no coincide con lo que figura en el TUPA.', 'cerrado', '2026-07-24 09:50:00');
+
+-- ---------------------------------------------------------------------
+-- comunicaciones_adjuntos
+-- ---------------------------------------------------------------------
+INSERT INTO comunicaciones_adjuntos (id_comunicacion, nombre_archivo, ruta_archivo, tipo_mime, tamano_bytes, creado_en) VALUES
+  (1, 'captura_reclamo.pdf', '/uploads/comunicaciones/captura_reclamo.pdf', 'application/pdf', 184320, '2026-07-26 08:41:00'),
+  (1, 'ticket_atencion.jpg', '/uploads/comunicaciones/ticket_atencion.jpg', 'image/jpeg', 245760, '2026-07-26 08:42:00'),
+  (3, 'error_portal.png', '/uploads/comunicaciones/error_portal.png', 'image/png', 198400, '2026-07-25 16:22:00');
+
 SET FOREIGN_KEY_CHECKS = 1;
