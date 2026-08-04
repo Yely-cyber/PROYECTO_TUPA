@@ -51,20 +51,31 @@ app.use((req, res, next) => {
 // (documentos_adjuntos.ruta_archivo apunta a rutas bajo /uploads/...).
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-const loadRouter = (modulePath) => {
+// IMPORTANTE: los require() deben ser literales (string directo), no una
+// variable, para que Vercel pueda detectar y empaquetar estos archivos al
+// compilar la función serverless. Un require(variable) no se incluye en el
+// bundle y falla en producción con "Cannot find module", aunque funcione
+// perfecto en local.
+const safeRequire = (label, loader) => {
 	try {
-		const loadedModule = require(modulePath);
+		const loadedModule = loader();
 		const candidate = loadedModule?.default || loadedModule?.router || loadedModule?.routes || loadedModule;
 
 		if (typeof candidate === 'function' || (candidate && typeof candidate.use === 'function')) {
 			return candidate;
 		}
 	} catch (error) {
-		console.warn(`No se pudo cargar ${modulePath}: ${error.message}`);
+		console.warn(`No se pudo cargar ${label}: ${error.message}`);
 	}
 
 	return express.Router();
 };
+
+const authRouter = safeRequire('./modules/auth/auth.routes', () => require('./modules/auth/auth.routes'));
+const adminRouter = safeRequire('./modules/admin/admin.routes', () => require('./modules/admin/admin.routes'));
+const catalogRouter = safeRequire('./modules/catalog/catalog.routes', () => require('./modules/catalog/catalog.routes'));
+const trackingRouter = safeRequire('./modules/tracking/tracking.routes', () => require('./modules/tracking/tracking.routes'));
+const comunicacionesRouter = safeRequire('./modules/comunicaciones/comunicaciones.routes', () => require('./modules/comunicaciones/comunicaciones.routes'));
 
 app.get('/', (_req, res) => {
 	res.json({
@@ -81,11 +92,11 @@ app.get('/health', (_req, res) => {
 	});
 });
 
-app.use('/api/auth', loadRouter('./modules/auth/auth.routes'));
-app.use('/api/admin', loadRouter('./modules/admin/admin.routes'));
-app.use('/api/catalog', loadRouter('./modules/catalog/catalog.routes'));
-app.use('/api/tracking', loadRouter('./modules/tracking/tracking.routes'));
-app.use('/api/comunicaciones', loadRouter('./modules/comunicaciones/comunicaciones.routes'));
+app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/catalog', catalogRouter);
+app.use('/api/tracking', trackingRouter);
+app.use('/api/comunicaciones', comunicacionesRouter);
 
 app.use((_req, res) => {
 	res.status(404).json({
