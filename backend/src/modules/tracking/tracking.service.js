@@ -22,11 +22,14 @@ const listarExpedientesUsuario = async (email) => {
 		 FROM expedientes e
 		 JOIN usuarios u ON u.id_usuario = e.id_usuario
 		 JOIN tramites t ON t.id_tramite = e.id_tramite
-		 LEFT JOIN movimientos_expediente m ON m.id_movimiento = (
-		   SELECT m2.id_movimiento FROM movimientos_expediente m2
-		   WHERE m2.id_expediente = e.id_expediente
-		   ORDER BY m2.fecha_envio DESC, m2.id_movimiento DESC LIMIT 1
-		 )
+		 LEFT JOIN (
+		   SELECT m2.id_expediente, m2.estado, m2.observaciones, m2.fecha_envio, m2.fecha_recepcion,
+		          ROW_NUMBER() OVER (
+		            PARTITION BY m2.id_expediente
+		            ORDER BY m2.fecha_envio DESC, m2.id_movimiento DESC
+		          ) AS rn
+		   FROM movimientos_expediente m2
+		 ) m ON m.id_expediente = e.id_expediente AND m.rn = 1
 		 WHERE LOWER(u.email) = ?
 		 ORDER BY e.fecha_registro DESC`,
 		[correo],

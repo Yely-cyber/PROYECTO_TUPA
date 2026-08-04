@@ -26,6 +26,7 @@ const loadEnvFile = () => {
 };
 
 loadEnvFile();
+console.log('DB_SSL leído como:', JSON.stringify(process.env.DB_SSL));
 
 const app = express();
 const port = process.env.PORT || 3000;
