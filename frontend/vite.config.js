@@ -6,3 +6,12 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
 })
+
+// vite.config.js
+export default {
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000'
+    }
+  }
+}

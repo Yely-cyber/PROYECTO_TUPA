@@ -7,8 +7,8 @@
  * AJUSTA este import a la ruta real de tu authService.js:
  */
 import { getSession } from '../../auth/services/authService'; // <-- corrige la ruta si tu authService.js vive en otro lugar
-
-const API_BASE_URL = import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:3000/api/admin';
+ 
+const API_BASE_URL = import.meta.env.VITE_ADMIN_API_URL || '/api/admin';
 const FALLBACK_ADMIN_ID = String(import.meta.env.VITE_ADMIN_ID || import.meta.env.VITE_DEMO_ADMIN_ID || '1');
 
 const getActiveAdminId = () => {

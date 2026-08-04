@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3000/api/auth';
+const API_BASE_URL = import.meta.env.VITE_AUTH_API_URL || '/api/auth';
 const SESSION_KEY = 'tupa_auth_session';
 
 const readStorage = (key, fallback) => {
@@ -11,7 +11,7 @@ const readStorage = (key, fallback) => {
 		return rawValue ? JSON.parse(rawValue) : fallback;
 	} catch {
 		return fallback;
-	}
+	} 
 };
 
 const writeStorage = (key, value) => {

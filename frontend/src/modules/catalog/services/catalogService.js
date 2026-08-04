@@ -2,7 +2,7 @@ import { formatTiempoEstimado, formatCosto, getIconForCategoria } from '../utils
 
 // Ajusta esto en un .env del frontend (VITE_API_BASE_URL) si tu backend
 // no corre en localhost:3000.
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const solicitarJSON = async (path, options = {}) => {
 	const response = await fetch(`${API_BASE}${path}`, options);

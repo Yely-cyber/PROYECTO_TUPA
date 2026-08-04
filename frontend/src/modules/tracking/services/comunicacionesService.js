@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const registrarComunicacion = async (comunicacion) => {
 	const response = await fetch(`${API_BASE}/comunicaciones`, {
@@ -11,4 +11,4 @@ export const registrarComunicacion = async (comunicacion) => {
 		throw new Error(data?.message || 'No se pudo registrar la comunicación.');
 	}
 	return data.comunicacion;
-};
+}; 
